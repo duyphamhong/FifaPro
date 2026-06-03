@@ -94,11 +94,11 @@ namespace Who
             {
                 app.UseDeveloperExceptionPage();
             }
-            app.UseCors(Constant.MyAllowSpecificOrigins);
-
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseCors(Constant.MyAllowSpecificOrigins);
 
             app.UseAuthentication();
             app.UseAuthorization();

@@ -92,11 +92,11 @@ namespace BehindAGirl
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "BehindAGirl v1"));
             }
-            app.UseCors(Constant.MyAllowSpecificOrigins);
-
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseCors(Constant.MyAllowSpecificOrigins);
 
             app.UseAuthentication();
             app.UseAuthorization();

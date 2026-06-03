@@ -94,6 +94,7 @@ jobs:
           port: ${{ secrets.VPS_SSH_PORT || 22 }}
           key: ${{ secrets.VPS_SSH_KEY }}
           passphrase: ${{ secrets.VPS_SSH_PASSPHRASE }}
+          timeout: 120s
           script: mkdir -p /opt/fifa/frontend
 
       - name: Copy frontend compose file
@@ -104,6 +105,7 @@ jobs:
           port: ${{ secrets.VPS_SSH_PORT || 22 }}
           key: ${{ secrets.VPS_SSH_KEY }}
           passphrase: ${{ secrets.VPS_SSH_PASSPHRASE }}
+          timeout: 120s
           source: deploy/docker-compose.frontend.prod.yml
           target: /opt/fifa/frontend
           strip_components: 1
@@ -120,6 +122,7 @@ jobs:
           port: ${{ secrets.VPS_SSH_PORT || 22 }}
           key: ${{ secrets.VPS_SSH_KEY }}
           passphrase: ${{ secrets.VPS_SSH_PASSPHRASE }}
+          timeout: 120s
           envs: FIFA_FRONTEND_IMAGE,GHCR_USERNAME,GHCR_TOKEN
           script: |
             set -eu

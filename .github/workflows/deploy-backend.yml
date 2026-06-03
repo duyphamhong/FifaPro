@@ -75,6 +75,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Check SSH connectivity
+        run: |
+          nc -vz ${{ secrets.VPS_HOST }} ${{ secrets.VPS_SSH_PORT || 22 }}
+
       - name: Prepare backend directory
         uses: appleboy/ssh-action@v1.2.0
         with:
@@ -83,6 +87,7 @@ jobs:
           port: ${{ secrets.VPS_SSH_PORT || 22 }}
           key: ${{ secrets.VPS_SSH_KEY }}
           passphrase: ${{ secrets.VPS_SSH_PASSPHRASE }}
+          timeout: 120s
           script: mkdir -p /opt/fifa/backend
 
       - name: Copy backend compose file
@@ -93,6 +98,7 @@ jobs:
           port: ${{ secrets.VPS_SSH_PORT || 22 }}
           key: ${{ secrets.VPS_SSH_KEY }}
           passphrase: ${{ secrets.VPS_SSH_PASSPHRASE }}
+          timeout: 120s
           source: deploy/docker-compose.backend.prod.yml
           target: /opt/fifa/backend
           strip_components: 1
@@ -113,6 +119,7 @@ jobs:
           port: ${{ secrets.VPS_SSH_PORT || 22 }}
           key: ${{ secrets.VPS_SSH_KEY }}
           passphrase: ${{ secrets.VPS_SSH_PASSPHRASE }}
+          timeout: 120s
           envs: FIFA_API_IMAGE,FIFA_IDENTITY_API_IMAGE,GHCR_USERNAME,GHCR_TOKEN,MSSQL_SA_PASSWORD,JWT_SECRET,FIFA_DB_CONNECTION_STRING
           script: |
             set -eu

@@ -12,6 +12,7 @@ namespace BehindAGirl.Repositoties.Interfaces
         Task UpdateUserAdditionInfo(List<UserAddtionalInformation> userAddtionalInformations);
         Task AddUserAddtionInfo();
         Task<List<UserAddtionalInformation>> GetUserAdditionInfos();
+        Task<bool> UpdateAvatar(string userName, string avatarUrl);
 		Task<bool> SetChampion(ChampionModel model);
 	}
 }

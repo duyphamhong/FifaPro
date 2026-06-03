@@ -5,6 +5,7 @@
       <div>
         <h1>FIFA World Cup 2026<sup>TM</sup></h1>
         <p>11 June - 19 July 2026</p>
+        
       </div>
     </div>
 
@@ -34,7 +35,8 @@
         <p class="wc-eyebrow">Bracket</p>
         <h2>Challenge</h2>
         <p class="wc-presented">Presented by ADI PredictStreet</p>
-        <h3>Who will win the next match?</h3>
+        <h3><i>"It's not your fault if you're born poor. But if you're still poor after multiple World Cups, that's your
+            fault." - Albert Einstein said.</i></h3>
         <button class="wc-pill" type="button" [disabled]="!nextMatch" (click)="scrollToFixtures()">
           Submit your predictions
         </button>
@@ -63,25 +65,81 @@
     </section>
 
     <section class="wc-dashboard-grid">
-      <aside class="wc-panel wc-profile">
-        <div class="wc-avatar-wrap">
-          <img [src]="userInfo?.avatarUrl || 'https://www.w3schools.com/w3css/img_avatar2.png'" alt="">
-        </div>
-        <h2>{{userInfo?.userName || currentUserName}}</h2>
-        <div class="wc-stat-line">
-          <span>Total Points</span>
-          <strong>{{userInfo?.currentCoins || 0}}</strong>
-        </div>
-        <div class="wc-stat-line">
-          <span>Ranking</span>
-          <strong>{{currentRank || 0}} / {{totalUsers || 0}}</strong>
-        </div>
-        <button *ngIf="isAdmin" class="wc-action wc-action-success" type="button" (click)="goToAdminDataSync()">
-          <i class="fa fa-refresh fa-fw"></i> Data Sync
-        </button>
-        <button class="wc-action" type="button" (click)="logOut()">
-          <i class="fa fa-sign-out fa-fw"></i> LogOut
-        </button>
+      <aside class="wc-left-stack">
+        <section class="wc-panel wc-profile">
+          <button class="wc-avatar-wrap wc-avatar-button" type="button" title="Change avatar" (click)="showAvatarDialog()">
+            <img [src]="userInfo?.avatarUrl || 'https://www.w3schools.com/w3css/img_avatar2.png'" alt="">
+          </button>
+          <h2>{{userInfo?.userName || currentUserName}}</h2>
+          <div class="wc-stat-line">
+            <span>Total Points</span>
+            <strong>{{userInfo?.currentCoins || 0}}</strong>
+          </div>
+          <div class="wc-stat-line">
+            <span>Ranking</span>
+            <strong>{{currentRank || 0}} / {{totalUsers || 0}}</strong>
+          </div>
+          <button *ngIf="isAdmin" class="wc-action wc-action-success" type="button" (click)="goToAdminDataSync()">
+            <i class="fa fa-refresh fa-fw"></i> Data Sync
+          </button>
+          <button class="wc-action" type="button" (click)="showPasswordDialog()">
+            <i class="fa fa-key fa-fw"></i> Change Password
+          </button>
+          <button class="wc-action" type="button" (click)="logOut()">
+            <i class="fa fa-sign-out fa-fw"></i> LogOut
+          </button>
+        </section>
+
+        <section class="wc-panel wc-chat-panel">
+          <div class="wc-section-header">
+            <div>
+              <p class="wc-eyebrow">Live</p>
+              <h2>Chat Room</h2>
+            </div>
+            <div class="wc-chat-tools">
+              <button class="wc-icon-button" type="button" [title]="isChatMuted ? 'Unmute chat sound' : 'Mute chat sound'"
+                (click)="toggleChatMute()">
+                <i class="fa" [ngClass]="isChatMuted ? 'fa-volume-off' : 'fa-volume-up'"></i>
+              </button>
+              <button class="wc-icon-button" type="button" title="Expand chat" (click)="expandChatRoom()">
+                <i class="fa fa-expand"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="wc-chat-online">
+            <strong><i class="fa fa-circle fa-fw"></i> Online {{onlineUsers.length}}</strong>
+            <div>
+              <button type="button" *ngFor="let user of onlineUsers" (click)="mentionOnlineUser(user)">
+                <img [src]="user?.avatar || 'https://www.w3schools.com/w3css/img_avatar2.png'" alt="">
+                <span>{{user?.userName}}</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="wc-chat-messages">
+            <div class="wc-chat-empty" *ngIf="chatData.length === 0">No messages yet.</div>
+            <article class="wc-chat-message" *ngFor="let item of chatData"
+              [class.is-current-user]="item?.userName === currentUserName"
+              [class.is-system-message]="item?.isSystem">
+              <img *ngIf="!item?.isSystem" [src]="item?.avatar || 'https://www.w3schools.com/w3css/img_avatar2.png'" alt="">
+              <div *ngIf="!item?.isSystem">
+                <strong>{{item?.userName}}</strong>
+                <span>{{item?.createdDate | date : "shortTime"}}</span>
+                <p>{{item?.content}}</p>
+              </div>
+              <em *ngIf="item?.isSystem">{{item?.content}}</em>
+            </article>
+          </div>
+
+          <div class="wc-chat-compose">
+            <textarea class="wc-input" rows="2" placeholder="Type a message..." [(ngModel)]="chatContent"
+              (keydown.enter)="onChatEnter($event)"></textarea>
+            <button class="wc-action wc-action-success" type="button" (click)="postChat()">
+              <i class="fa fa-paper-plane fa-fw"></i> Send
+            </button>
+          </div>
+        </section>
       </aside>
 
       <section class="wc-panel wc-ranking">
@@ -96,12 +154,15 @@
         </div>
 
         <div class="wc-rank-list">
-          <div class="wc-rank-row" *ngFor="let user of rankingPaging">
-            <div class="wc-rank-medal">{{user.rank}}</div>
-            <img [src]="user.avatarUrl || 'https://www.w3schools.com/w3css/img_avatar2.png'" alt="">
-            <div>
+          <div class="wc-rank-row" *ngFor="let user of rankingPaging" [ngClass]="'wc-rank-tier-' + user.rank">
+            <img class="wc-rank-avatar" [src]="user.avatarUrl || 'https://www.w3schools.com/w3css/img_avatar2.png'"
+              alt="">
+            <div class="wc-rank-copy">
               <strong>{{user.name}}</strong>
               <span>{{user.currentPoint}} pts</span>
+            </div>
+            <div class="wc-rank-badge">
+              <span>{{user.rank}}</span>
             </div>
           </div>
         </div>
@@ -114,34 +175,65 @@
         </div>
       </section>
 
-      <aside class="wc-panel wc-stats" *ngIf="userInfo">
-        <div class="wc-section-header">
-          <div>
-            <p class="wc-eyebrow">Player</p>
-            <h2>Statistics</h2>
+      <aside class="wc-side-stack">
+        <section class="wc-panel wc-prophesy" *ngIf="nextMatch">
+          <div class="wc-section-header">
+            <div>
+              <h2>Prophesy</h2>
+            </div>
           </div>
-        </div>
-        <div class="wc-stat-line">
-          <span>Predicted</span>
-          <strong>{{userInfo?.predictedNumber}}</strong>
-        </div>
-        <div class="wc-stat-line">
-          <span>Exact score</span>
-          <strong>{{userInfo?.winnerAndScoredPredicted}}</strong>
-        </div>
-        <div class="wc-stat-line">
-          <span>Winner</span>
-          <strong>{{userInfo?.winnerPredicted}}</strong>
-        </div>
-        <div class="wc-stat-line">
-          <span>Missed</span>
-          <strong>{{userInfo?.losePredicted}}</strong>
-        </div>
+          <p>
+            <span>{{prophesyMessage}}</span>
+            <strong>- {{prophesyAuthor}}</strong>
+          </p>
+        </section>
+
+        <section class="wc-panel wc-stats" *ngIf="userInfo">
+          <div class="wc-section-header">
+            <div>
+              <p class="wc-eyebrow">Player</p>
+              <h2>Statistics</h2>
+            </div>
+          </div>
+          <div class="wc-stat-line">
+            <span>Predicted</span>
+            <strong>{{userInfo?.predictedNumber}}</strong>
+          </div>
+          <div class="wc-stat-line">
+            <span>Exact score</span>
+            <strong>{{userInfo?.winnerAndScoredPredicted}}</strong>
+          </div>
+          <div class="wc-stat-line">
+            <span>Winner</span>
+            <strong>{{userInfo?.winnerPredicted}}</strong>
+          </div>
+          <div class="wc-stat-line">
+            <span>Missed</span>
+            <strong>{{userInfo?.losePredicted}}</strong>
+          </div>
+        </section>
+
+        <section class="wc-panel wc-history-panel">
+          <div class="wc-section-header">
+            <div>
+              <p class="wc-eyebrow">Recent</p>
+              <h2>History</h2>
+            </div>
+            <button class="wc-mini-button" type="button" onclick="document.getElementById('id01').style.display='block'">
+              Detail
+            </button>
+          </div>
+          <div class="wc-history-mini" *ngFor="let item of histories.slice(0,2)">
+            <strong>{{item?.team1}} - {{item?.team2}}</strong>
+            <span>{{item?.kickOfDate | date : "dd/MM/yyyy"}} | {{item?.predictResult || 'Pending'}}</span>
+          </div>
+        </section>
+
       </aside>
     </section>
 
-    <section class="wc-tools-grid">
-      <div class="wc-panel" *ngIf="userInfo?.canChangeChampion">
+    <section class="wc-tools-grid" *ngIf="userInfo?.canChangeChampion">
+      <div class="wc-panel">
         <div class="wc-section-header">
           <div>
             <p class="wc-eyebrow">Tournament</p>
@@ -155,35 +247,6 @@
         <input class="wc-input" type="number" min="0" [(ngModel)]="samePrediction">
         <button class="wc-action wc-action-success" type="button" (click)="setChampion()">Bet Now</button>
       </div>
-
-      <div class="wc-panel">
-        <div class="wc-section-header">
-          <div>
-            <p class="wc-eyebrow">Account</p>
-            <h2>Password</h2>
-          </div>
-        </div>
-        <input class="wc-input" type="password" placeholder="Old Password" [(ngModel)]="oldPass">
-        <input class="wc-input" type="password" placeholder="New Password" [(ngModel)]="newPass">
-        <input class="wc-input" type="password" placeholder="Confirm Password" [(ngModel)]="confirmPass">
-        <button class="wc-action" type="button" (click)="changePassword()">Submit</button>
-      </div>
-
-      <div class="wc-panel">
-        <div class="wc-section-header">
-          <div>
-            <p class="wc-eyebrow">Recent</p>
-            <h2>History</h2>
-          </div>
-          <button class="wc-mini-button" type="button" onclick="document.getElementById('id01').style.display='block'">
-            Detail
-          </button>
-        </div>
-        <div class="wc-history-mini" *ngFor="let item of histories.slice(0,2)">
-          <strong>{{item?.team1}} - {{item?.team2}}</strong>
-          <span>{{item?.kickOfDate | date : "dd/MM/yyyy"}} | {{item?.predictResult || 'Pending'}}</span>
-        </div>
-      </div>
     </section>
 
     <section id="fixtures" class="wc-fixtures">
@@ -195,8 +258,7 @@
       </div>
 
       <div class="wc-match-grid">
-        <article class="wc-match-card" *ngFor="let match of matches"
-          [class.is-live]="match.isHappening"
+        <article class="wc-match-card" *ngFor="let match of matches" [class.is-live]="match.isHappening"
           [class.is-passed]="match.isPassed">
           <header>
             <span>{{match?.description || 'Match'}}</span>
@@ -275,6 +337,88 @@
   </div>
 </div>
 
+<div class="wc-chat-expanded" *ngIf="isChatExpanded">
+  <header>
+    <div>
+      <p class="wc-eyebrow">Live</p>
+      <h2>Chat Room</h2>
+    </div>
+    <div class="wc-chat-tools">
+      <button class="wc-icon-button" type="button" [title]="isChatMuted ? 'Unmute chat sound' : 'Mute chat sound'"
+        (click)="toggleChatMute()">
+        <i class="fa" [ngClass]="isChatMuted ? 'fa-volume-off' : 'fa-volume-up'"></i>
+      </button>
+      <button class="wc-icon-button" type="button" title="Collapse chat" (click)="collapseChatRoom()">
+        <i class="fa fa-compress"></i>
+      </button>
+    </div>
+  </header>
+
+  <div class="wc-chat-online">
+    <strong><i class="fa fa-circle fa-fw"></i> Online {{onlineUsers.length}}</strong>
+    <div>
+      <button type="button" *ngFor="let user of onlineUsers" (click)="mentionOnlineUser(user)">
+        <img [src]="user?.avatar || 'https://www.w3schools.com/w3css/img_avatar2.png'" alt="">
+        <span>{{user?.userName}}</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="wc-chat-messages">
+    <div class="wc-chat-empty" *ngIf="chatData.length === 0">No messages yet.</div>
+    <article class="wc-chat-message" *ngFor="let item of chatData"
+      [class.is-current-user]="item?.userName === currentUserName"
+      [class.is-system-message]="item?.isSystem">
+      <img *ngIf="!item?.isSystem" [src]="item?.avatar || 'https://www.w3schools.com/w3css/img_avatar2.png'" alt="">
+      <div *ngIf="!item?.isSystem">
+        <strong>{{item?.userName}}</strong>
+        <span>{{item?.createdDate | date : "shortTime"}}</span>
+        <p>{{item?.content}}</p>
+      </div>
+      <em *ngIf="item?.isSystem">{{item?.content}}</em>
+    </article>
+  </div>
+
+  <div class="wc-chat-compose">
+    <textarea class="wc-input" rows="2" placeholder="Type a message..." [(ngModel)]="chatContent"
+      (keydown.enter)="onChatEnter($event)"></textarea>
+    <button class="wc-action wc-action-success" type="button" (click)="postChat()">
+      <i class="fa fa-paper-plane fa-fw"></i> Send
+    </button>
+  </div>
+</div>
+
+<div id="password-modal" class="w3-modal w3-animate-opacity" [ngClass]="{'show-popup': isShowPasswordPopup}">
+  <div class="w3-modal-content wc-modal wc-password-modal">
+    <header>
+      <span (click)="hidePasswordDialog()">&times;</span>
+      <h2>Change Password</h2>
+    </header>
+    <div class="wc-modal-body">
+      <input class="wc-input" type="password" placeholder="Old Password" [(ngModel)]="oldPass">
+      <input class="wc-input" type="password" placeholder="New Password" [(ngModel)]="newPass">
+      <input class="wc-input" type="password" placeholder="Confirm Password" [(ngModel)]="confirmPass">
+      <button class="wc-action" type="button" (click)="changePassword()">Submit</button>
+    </div>
+  </div>
+</div>
+
+<div id="avatar-modal" class="w3-modal w3-animate-opacity" [ngClass]="{'show-popup': isShowAvatarPopup}">
+  <div class="w3-modal-content wc-modal wc-password-modal">
+    <header>
+      <span (click)="hideAvatarDialog()">&times;</span>
+      <h2>Change Avatar</h2>
+    </header>
+    <div class="wc-modal-body">
+      <input class="wc-input" type="url" placeholder="Image URL" [(ngModel)]="avatarUrl">
+      <div class="wc-avatar-preview" *ngIf="avatarUrl">
+        <img [src]="avatarUrl" alt="">
+      </div>
+      <button class="wc-action wc-action-success" type="button" (click)="updateAvatar()">Save Avatar</button>
+    </div>
+  </div>
+</div>
+
 <div id="match-predict" class="w3-modal w3-animate-opacity" [ngClass]="{'show-popup': isShowPredictPopup}">
   <div class="w3-modal-content wc-modal">
     <header>
@@ -285,7 +429,8 @@
       <div class="wc-prediction-card" *ngFor="let prediction of matchPredictions.predictions">
         <strong>{{prediction?.userName}}</strong>
         <span>{{prediction?.team1Score}} - {{prediction?.team2Score}}</span>
-        <em>{{prediction?.predictedDate | date : "shortTime"}} - {{prediction?.predictedDate | date : "dd/MM/yyyy"}}</em>
+        <em>{{prediction?.predictedDate | date : "shortTime"}} - {{prediction?.predictedDate | date :
+          "dd/MM/yyyy"}}</em>
       </div>
     </div>
   </div>

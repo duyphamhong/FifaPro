@@ -70,6 +70,30 @@ namespace BehindAGirl.Controllers
 		}
 
         [HttpPost]
+        [Route("avatar")]
+        public async Task<IActionResult> UpdateAvatar([FromBody] AvatarModel model)
+        {
+            if (model == null || string.IsNullOrWhiteSpace(model.AvatarUrl))
+            {
+                return StatusCode(StatusCodes.Status400BadRequest, new ApiResponse { Status = "Error", Message = "Avatar url is required!" });
+            }
+
+            var userName = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name).Value;
+            var result = await _userService.UpdateAvatar(userName, model.AvatarUrl.Trim());
+
+            if (!result)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest, new ApiResponse { Status = "Error", Message = "User information not found!" });
+            }
+
+            return Ok(new ApiResponse
+            {
+                Status = "OK",
+                Message = "Avatar updated!"
+            });
+        }
+
+        [HttpPost]
         [Route("set-champion")]
         public async Task<IActionResult> SetChampion([FromBody] ChampionModel model)
         {

@@ -30,7 +30,9 @@ namespace BehindAGirl.Controllers
         public async Task<IActionResult> SendChatAsync([FromBody] ChatModel model)
         {
             string directory = Directory.GetCurrentDirectory();
-            var path = @$"{directory}\ChatData\chat-{model.MatchId}.json";
+            var chatDirectory = Path.Combine(directory, "ChatData");
+            Directory.CreateDirectory(chatDirectory);
+            var path = Path.Combine(chatDirectory, $"chat-{model.MatchId}.json");
             if (!System.IO.File.Exists(path))
 			{
                 System.IO.File.WriteAllText(path, null);
@@ -63,7 +65,9 @@ namespace BehindAGirl.Controllers
         public async Task<IActionResult> GetChats(string matchId)
 		{
             string directory = Directory.GetCurrentDirectory();
-            var path = @$"{directory}\ChatData\chat-{matchId}.json";
+            var chatDirectory = Path.Combine(directory, "ChatData");
+            Directory.CreateDirectory(chatDirectory);
+            var path = Path.Combine(chatDirectory, $"chat-{matchId}.json");
             if (!System.IO.File.Exists(path))
             {
                 System.IO.File.WriteAllText(path, null); 

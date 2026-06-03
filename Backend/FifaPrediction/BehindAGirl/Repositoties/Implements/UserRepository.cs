@@ -78,6 +78,28 @@ namespace BehindAGirl.Repositoties.Implements
 			}
         }
 
+        public async Task<bool> UpdateAvatar(string userName, string avatarUrl)
+        {
+            try
+            {
+                var userAddInfo = _context.UserAddtionalInformations.FirstOrDefault(x => x.UserName == userName);
+                if (userAddInfo == null)
+                {
+                    return false;
+                }
+
+                userAddInfo.AvatarUrl = avatarUrl;
+                _context.UserAddtionalInformations.Update(userAddInfo);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
         public async Task<bool> SetChampion(ChampionModel model)
         {
 			try

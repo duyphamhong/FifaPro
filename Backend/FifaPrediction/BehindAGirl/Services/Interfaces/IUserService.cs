@@ -13,6 +13,7 @@ namespace BehindAGirl.Services.Interfaces
         Task<CurrentPositionModel> GetPlayerPosition(string userName);
         Task UpdateUserAdditionInfo(List<UserAddtionalInformation> userAddtionalInformations);
         Task<UserInformationModel> GetPlayerInformation(string userName);
+        Task<bool> UpdateAvatar(string userName, string avatarUrl);
         Task<bool> SetChampion(ChampionModel model);
 		Task<List<PredictionHistory>> GetPredictionHistory(string userName);
 	}

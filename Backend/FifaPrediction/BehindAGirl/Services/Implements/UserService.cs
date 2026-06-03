@@ -67,6 +67,12 @@ namespace BehindAGirl.Services.Implements
         {
             return _userRepository.UpdateUserAdditionInfo(userAddtionalInformations);
         }
+
+        public Task<bool> UpdateAvatar(string userName, string avatarUrl)
+        {
+            return _userRepository.UpdateAvatar(userName, avatarUrl);
+        }
+
         public async Task<UserInformationModel> GetPlayerInformation(string userName)
         {
             var userAddtionInfor = await _dataInformationRepository.GetUserAddtionInformations();

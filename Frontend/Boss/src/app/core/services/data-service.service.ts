@@ -38,6 +38,10 @@ export class DataServiceService {
     return this.serviceInvoker.get(data, Api.ADD_USER_ADDITIONAL_INFORMATION);
   }
 
+  updateAvatar(data: any): Observable<any> {
+    return this.serviceInvoker.post(data, Api.UPDATE_AVATAR);
+  }
+
   setChampion(data: any): Observable<any> {
     return this.serviceInvoker.post(data, Api.SET_CHAMPION);
   }

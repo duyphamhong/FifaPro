@@ -8,6 +8,7 @@ export class Api{
   public static GET_MATCHES = "/api/match/matches";
   public static GET_USER_INFO = "/api/user/player-info";
   public static ADD_USER_ADDITIONAL_INFORMATION = "/api/user/additional-information";
+  public static UPDATE_AVATAR = "/api/user/avatar";
   public static CHANGE_PASS = "/api/Authentication/change-password";
   public static SET_CHAMPION = "/api/user/set-champion";
   public static GET_HISTORY = "/api/user/prediction-history";

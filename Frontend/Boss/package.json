@@ -2,11 +2,11 @@
   "name": "boss",
   "version": "0.0.0",
   "scripts": {
-    "ng": "node --openssl-legacy-provider ./node_modules/@angular/cli/bin/ng",
-    "start": "node --openssl-legacy-provider ./node_modules/@angular/cli/bin/ng serve --open",
-    "build": "node --openssl-legacy-provider ./node_modules/@angular/cli/bin/ng build",
-    "watch": "node --openssl-legacy-provider ./node_modules/@angular/cli/bin/ng build --watch --configuration development",
-    "test": "node --openssl-legacy-provider ./node_modules/@angular/cli/bin/ng test"
+    "ng": "./node_modules/@angular/cli/bin/ng",
+    "start": "./node_modules/@angular/cli/bin/ng serve --open",
+    "build": "./node_modules/@angular/cli/bin/ng build",
+    "watch": "./node_modules/@angular/cli/bin/ng build --watch --configuration development",
+    "test": "./node_modules/@angular/cli/bin/ng test"
   },
   "private": true,
   "dependencies": {

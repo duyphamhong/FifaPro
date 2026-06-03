@@ -21,6 +21,10 @@ export class AuthService {
     return this.http.post(this.baseAuthenUrl + Api.LOGIN, user);
   }
 
+  register(user: any): Observable<any> {
+    return this.http.post(this.baseAuthenUrl + Api.REGISTER, user);
+  }
+
   changePass(data: any): Observable<any> {
     return this.http.post(this.baseAuthenUrl + Api.CHANGE_PASS, data);
   }

@@ -1,5 +1,6 @@
 export class Api{
   public static LOGIN = "/api/Authentication/Login";
+  public static REGISTER = "/api/Authentication/register";
   public static GET_NEXT_MATCH = "/api/match/next-match";
   public static GET_PLAYER_POSITION = "/api/user/players-position";
   public static PREDICT_MATCH = "/api/match/set-predict";

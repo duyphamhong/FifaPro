@@ -1,111 +1,234 @@
 
-.app-header {
-	justify-content: space-between;
-	position: fixed;
-	top: 0;
-	left: 0;
-	right: 0;
-	z-index: 2;
-	box-shadow: 0 3px 5px -1px rgba(0, 0, 0, .2), 0 6px 10px 0 rgba(0, 0, 0, .14), 0 1px 18px 0 rgba(0, 0, 0, .12);
+.login-shell {
+  align-items: stretch;
+  background:
+    linear-gradient(90deg, rgba(2, 8, 29, 0.96) 0%, rgba(5, 22, 57, 0.82) 48%, rgba(12, 23, 28, 0.68) 100%),
+    url('/assets/images/stadium-background.jpg') center / cover no-repeat;
+  color: #ffffff;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(360px, 440px);
+  min-height: 100vh;
+  overflow: hidden;
+  position: relative;
 }
 
-.main-wrapper {
-	background-image:
-		linear-gradient(180deg, rgba(5, 5, 5, 0.6) 0%, rgba(5, 5, 5, 0.88) 100%),
-		url('https://i.ytimg.com/vi/Earbw0K2B5s/maxresdefault.jpg');
-	background-repeat: no-repeat;
-	background-attachment: fixed;
-  	background-size: 100% 100%;
-	height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.login-shell::after {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0));
+  content: '';
+  height: 1px;
+  left: 7%;
+  position: absolute;
+  right: 7%;
+  top: 64px;
 }
 
-.positronx {
-	text-decoration: none;
-	color: #ffffff;
+.match-stage {
+  align-items: flex-end;
+  display: flex;
+  min-height: 100%;
+  padding: 64px;
+  position: relative;
 }
 
-.box {
-	position: relative;
-	top: 0;
-	opacity: 1;
-	float: left;
-	padding: 60px 50px 40px 50px;
-	width: 100%;
-	color: #f4efe8;
-	background: rgba(16, 19, 23, 0.92);
-	border: 1px solid rgba(255, 255, 255, 0.12);
-	border-radius: 10px;
-	transform: scale(1);
-	-webkit-transform: scale(1);
-	-ms-transform: scale(1);
-	z-index: 5;
-	max-width: 330px;
-	box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+.stage-copy {
+  max-width: 560px;
+  padding-bottom: 38px;
+  position: relative;
+  z-index: 2;
 }
 
-.box.back {
-	transform: scale(.95);
-	-webkit-transform: scale(.95);
-	-ms-transform: scale(.95);
-	top: -20px;
-	opacity: .8;
-	z-index: -1;
+.kicker,
+.eyebrow {
+  color: #7bdff2;
+  font-size: 13px;
+  font-weight: 700;
+  margin: 0 0 12px;
+  text-transform: uppercase;
 }
 
-.box:before {
-	content: "";
-	width: 100%;
-	height: 30px;
-	border-radius: 10px;
-	position: absolute;
-	top: -10px;
-	background: rgba(255, 255, 255, .08);
-	left: 0;
-	transform: scale(.95);
-	-webkit-transform: scale(.95);
-	-ms-transform: scale(.95);
-	z-index: -1;
+.stage-copy h1 {
+  color: #ffffff;
+  font-size: 62px;
+  line-height: 0.98;
+  margin: 0;
+  max-width: 620px;
 }
 
-.main-wrapper .form-width {
-	min-width: 100%;
-	max-width: 300px;
-	width: 100%;
+.stage-copy p {
+  color: #d4dcf7;
+  font-size: 20px;
+  line-height: 1.5;
+  margin: 22px 0 0;
+  max-width: 500px;
 }
 
-.main-wrapper .field-full-width,
-.main-wrapper .btn-block {
-	width: 100%;
+.trophy {
+  bottom: -120px;
+  filter: drop-shadow(0 42px 56px rgba(0, 0, 0, 0.46));
+  max-height: 88vh;
+  opacity: 0.92;
+  position: absolute;
+  right: -42px;
+  width: min(40vw, 430px);
 }
 
-.main-wrapper mat-card-header {
-	text-align: center;
-	width: 100%;
-	display: block;
-	font-weight: 700;
+.auth-panel {
+  align-self: center;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.44);
+  border-radius: 8px;
+  box-shadow: 0 34px 80px rgba(0, 0, 0, 0.35);
+  color: var(--wc-text);
+  margin: 48px;
+  padding: 34px;
+  position: relative;
+  z-index: 3;
 }
 
-.main-wrapper mat-card-header mat-card-title {
-	font-size: 30px;
-	margin: 0;
-	letter-spacing: 0.08em;
-	text-transform: uppercase;
+.brand-row {
+  align-items: center;
+  display: flex;
+  gap: 14px;
+  margin-bottom: 26px;
 }
 
-.main-wrapper .mat-card {
-	padding: 45px 70px 55px;
+.brand-mark {
+  align-items: center;
+  background: #06185b;
+  border-radius: 8px;
+  color: #ffffff;
+  display: flex;
+  height: 50px;
+  justify-content: center;
+  width: 50px;
 }
 
-.main-wrapper .mat-stroked-button {
-	border: 0;
-	line-height: 54px;
-	background: linear-gradient(135deg, #8f0f17 0%, #d71920 100%);
-	color: #ffffff;
+.brand-mark mat-icon {
+  height: 28px;
+  width: 28px;
 }
 
-.main-wrapper .mat-form-field-appearance-legacy .mat-form-field-infix {
-	padding: 0.8375em 0;
+.eyebrow {
+  color: var(--wc-muted);
+  margin-bottom: 4px;
+}
+
+.brand-row h2 {
+  color: var(--wc-navy);
+  font-size: 30px;
+  line-height: 1.1;
+  margin: 0;
+}
+
+.mode-switch {
+  background: #eef3ff;
+  border: 1px solid var(--wc-border);
+  border-radius: 8px;
+  display: grid;
+  gap: 4px;
+  grid-template-columns: 1fr 1fr;
+  margin-bottom: 24px;
+  padding: 4px;
+}
+
+.mode-switch button {
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  color: var(--wc-muted);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  height: 42px;
+}
+
+.mode-switch button.is-active {
+  background: #ffffff;
+  box-shadow: 0 8px 18px rgba(5, 15, 70, 0.12);
+  color: var(--wc-blue);
+}
+
+.auth-form {
+  display: grid;
+  gap: 10px;
+}
+
+.auth-form mat-form-field {
+  width: 100%;
+}
+
+.auth-form mat-icon[matPrefix] {
+  color: var(--wc-muted);
+  margin-right: 8px;
+}
+
+.primary-action {
+  align-items: center;
+  border-radius: 8px;
+  display: inline-flex;
+  gap: 8px;
+  height: 52px;
+  justify-content: center;
+  margin-top: 4px;
+  width: 100%;
+}
+
+.primary-action mat-icon {
+  height: 21px;
+  width: 21px;
+}
+
+@media (max-width: 920px) {
+  .login-shell {
+    grid-template-columns: 1fr;
+    min-height: 100%;
+    padding: 28px;
+  }
+
+  .match-stage {
+    min-height: auto;
+    padding: 16px 0 18px;
+  }
+
+  .stage-copy {
+    padding-bottom: 0;
+  }
+
+  .stage-copy h1 {
+    font-size: 42px;
+  }
+
+  .stage-copy p {
+    font-size: 17px;
+  }
+
+  .trophy {
+    max-height: 360px;
+    opacity: 0.32;
+    right: -88px;
+    top: 18px;
+    width: 260px;
+  }
+
+  .auth-panel {
+    margin: 0;
+  }
+}
+
+@media (max-width: 520px) {
+  .login-shell {
+    padding: 18px;
+  }
+
+  .stage-copy h1 {
+    font-size: 34px;
+  }
+
+  .stage-copy p {
+    font-size: 15px;
+  }
+
+  .auth-panel {
+    padding: 22px;
+  }
 }

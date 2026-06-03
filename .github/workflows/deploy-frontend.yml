@@ -45,11 +45,11 @@ jobs:
           auth_base_url="${{ vars.AUTH_BASE_URL }}"
 
           if [ -z "$api_base_url" ]; then
-            api_base_url="http://${{ secrets.VPS_HOST }}:6001"
+            api_base_url="http://api.appzihub.fun"
           fi
 
           if [ -z "$auth_base_url" ]; then
-            auth_base_url="http://${{ secrets.VPS_HOST }}:5001"
+            auth_base_url="http://auth.appzihub.fun"
           fi
 
           echo "api_base_url=${api_base_url}" >> "$GITHUB_OUTPUT"
@@ -91,6 +91,7 @@ jobs:
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
+          port: ${{ secrets.VPS_SSH_PORT || 22 }}
           key: ${{ secrets.VPS_SSH_KEY }}
           passphrase: ${{ secrets.VPS_SSH_PASSPHRASE }}
           script: mkdir -p /opt/fifa/frontend
@@ -100,6 +101,7 @@ jobs:
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
+          port: ${{ secrets.VPS_SSH_PORT || 22 }}
           key: ${{ secrets.VPS_SSH_KEY }}
           passphrase: ${{ secrets.VPS_SSH_PASSPHRASE }}
           source: deploy/docker-compose.frontend.prod.yml
@@ -115,6 +117,7 @@ jobs:
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
+          port: ${{ secrets.VPS_SSH_PORT || 22 }}
           key: ${{ secrets.VPS_SSH_KEY }}
           passphrase: ${{ secrets.VPS_SSH_PASSPHRASE }}
           envs: FIFA_FRONTEND_IMAGE,GHCR_USERNAME,GHCR_TOKEN
@@ -129,6 +132,8 @@ jobs:
             cat > .env <<EOF
             FIFA_FRONTEND_IMAGE=${FIFA_FRONTEND_IMAGE}
             EOF
+
+            docker network create fifa-public >/dev/null 2>&1 || true
 
             echo "${GHCR_TOKEN}" | docker login ghcr.io -u "${GHCR_USERNAME}" --password-stdin
             docker compose -f docker-compose.frontend.prod.yml pull

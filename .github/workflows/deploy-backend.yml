@@ -135,6 +135,8 @@ jobs:
             EOF
             fi
 
+            docker network create fifa-public >/dev/null 2>&1 || true
+
             echo "${GHCR_TOKEN}" | docker login ghcr.io -u "${GHCR_USERNAME}" --password-stdin
             docker compose -f docker-compose.backend.prod.yml pull
             docker compose -f docker-compose.backend.prod.yml up -d --remove-orphans

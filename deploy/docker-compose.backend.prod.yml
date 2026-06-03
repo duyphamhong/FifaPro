@@ -16,6 +16,9 @@ services:
       - fifa-chat-data:/app/ChatData
     depends_on:
       - sqlserver
+    networks:
+      - fifa-backend
+      - fifa-public
     restart: unless-stopped
 
   fifa-identity-api:
@@ -31,6 +34,9 @@ services:
       - "${FIFA_IDENTITY_API_PORT:-5001}:8080"
     depends_on:
       - sqlserver
+    networks:
+      - fifa-backend
+      - fifa-public
     restart: unless-stopped
 
   sqlserver:
@@ -43,8 +49,15 @@ services:
       - "${MSSQL_PORT:-1433}:1433"
     volumes:
       - fifa-sqlserver-data:/var/opt/mssql
+    networks:
+      - fifa-backend
     restart: unless-stopped
 
 volumes:
   fifa-chat-data:
   fifa-sqlserver-data:
+
+networks:
+  fifa-backend:
+  fifa-public:
+    external: true

@@ -5,4 +5,10 @@ services:
     image: ${FIFA_FRONTEND_IMAGE}
     ports:
       - "${FIFA_FRONTEND_PORT:-80}:80"
+    networks:
+      - fifa-public
     restart: unless-stopped
+
+networks:
+  fifa-public:
+    external: true

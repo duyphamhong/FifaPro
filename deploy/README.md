@@ -13,6 +13,7 @@ Create these in GitHub repository settings under `Secrets and variables`:
 - `VPS_USER`: SSH user, for example `root`.
 - `VPS_SSH_KEY`: private SSH key used for deployment.
 - `VPS_SSH_PASSPHRASE`: SSH key passphrase, if the key has one.
+- `VPS_SSH_PORT`: SSH port, if your server does not use port `22`.
 - `MSSQL_SA_PASSWORD`: strong SQL Server SA password.
 - `JWT_SECRET`: long random JWT signing secret.
 

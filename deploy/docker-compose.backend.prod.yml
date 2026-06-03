@@ -5,49 +5,33 @@ services:
     image: ${FIFA_API_IMAGE}
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
-      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
       ConnectionStrings__ConnectionString: ${FIFA_DB_CONNECTION_STRING:-Server=sqlserver,1433;Database=WhoIdentity;User Id=sa;Password=${MSSQL_SA_PASSWORD};MultipleActiveResultSets=true;TrustServerCertificate=True}
-      JWT__ValidAudience: ${JWT_VALID_AUDIENCE:-https://api.example.com}
-      JWT__ValidIssuer: ${JWT_VALID_ISSUER:-https://api.example.com}
+      JWT__ValidAudience: ${JWT_VALID_AUDIENCE:-https://localhost}
+      JWT__ValidIssuer: ${JWT_VALID_ISSUER:-http://yourdomain.com}
       JWT__JwtExpireHours: ${JWT_EXPIRE_HOURS:-8}
       JWT__Secret: ${JWT_SECRET}
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.fifa-api.rule=Host(`api.example.com`)
-      - traefik.http.routers.fifa-api.entrypoints=websecure
-      - traefik.http.routers.fifa-api.tls.certresolver=letsencrypt
-      - traefik.http.services.fifa-api.loadbalancer.server.port=8080
+    ports:
+      - "${FIFA_API_PORT:-6001}:8080"
     volumes:
       - fifa-chat-data:/app/ChatData
     depends_on:
       - sqlserver
     restart: unless-stopped
-    networks:
-      - default
-      - traefik-proxy
 
   fifa-identity-api:
     image: ${FIFA_IDENTITY_API_IMAGE}
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
-      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
       ConnectionStrings__ConnectionString: ${FIFA_DB_CONNECTION_STRING:-Server=sqlserver,1433;Database=WhoIdentity;User Id=sa;Password=${MSSQL_SA_PASSWORD};MultipleActiveResultSets=true;TrustServerCertificate=True}
-      JWT__ValidAudience: ${JWT_VALID_AUDIENCE:-https://auth.example.com}
-      JWT__ValidIssuer: ${JWT_VALID_ISSUER:-https://auth.example.com}
+      JWT__ValidAudience: ${JWT_VALID_AUDIENCE:-https://localhost}
+      JWT__ValidIssuer: ${JWT_VALID_ISSUER:-http://yourdomain.com}
       JWT__JwtExpireHours: ${JWT_EXPIRE_HOURS:-8}
       JWT__Secret: ${JWT_SECRET}
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.fifa-identity.rule=Host(`auth.example.com`)
-      - traefik.http.routers.fifa-identity.entrypoints=websecure
-      - traefik.http.routers.fifa-identity.tls.certresolver=letsencrypt
-      - traefik.http.services.fifa-identity.loadbalancer.server.port=8080
+    ports:
+      - "${FIFA_IDENTITY_API_PORT:-5001}:8080"
     depends_on:
       - sqlserver
     restart: unless-stopped
-    networks:
-      - default
-      - traefik-proxy
 
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
@@ -55,16 +39,12 @@ services:
       ACCEPT_EULA: "Y"
       MSSQL_PID: ${MSSQL_PID:-Express}
       MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD}
+    ports:
+      - "${MSSQL_PORT:-1433}:1433"
     volumes:
       - fifa-sqlserver-data:/var/opt/mssql
     restart: unless-stopped
-    networks:
-      - default
 
 volumes:
   fifa-chat-data:
   fifa-sqlserver-data:
-
-networks:
-  traefik-proxy:
-    external: true

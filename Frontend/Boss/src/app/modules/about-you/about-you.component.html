@@ -46,14 +46,14 @@
         <h3>{{nextMatch?.description || 'Next Match'}}</h3>
         <div class="wc-next-row">
           <div class="wc-team-chip">
-            <img [src]="nextMatch?.team1Flag" alt="">
+            <img [src]="getFlagUrl(nextMatch?.team1Flag)" (error)="useDefaultFlag($event)" alt="">
             <span>{{nextMatch?.team1 || 'TBD'}}</span>
           </div>
           <div class="wc-score-slot">{{nextMatch?.team1ScoredPredicted ?? '-'}}</div>
         </div>
         <div class="wc-next-row">
           <div class="wc-team-chip">
-            <img [src]="nextMatch?.team2Flag" alt="">
+            <img [src]="getFlagUrl(nextMatch?.team2Flag)" (error)="useDefaultFlag($event)" alt="">
             <span>{{nextMatch?.team2 || 'TBD'}}</span>
           </div>
           <div class="wc-score-slot">{{nextMatch?.team2ScoredPredicted ?? '-'}}</div>
@@ -257,64 +257,76 @@
         </div>
       </div>
 
-      <div class="wc-match-grid">
-        <article class="wc-match-card" *ngFor="let match of matches" [class.is-live]="match.isHappening"
-          [class.is-passed]="match.isPassed">
-          <header>
-            <span>{{match?.description || 'Match'}}</span>
-            <strong>{{match?.kickOfDate | date : "shortTime"}}</strong>
-          </header>
-
-          <div class="wc-match-teams">
+      <div class="wc-match-groups">
+        <section class="wc-match-group" *ngFor="let group of matchGroups">
+          <button class="wc-match-group-header" type="button" (click)="toggleMatchGroup(group)">
             <div>
-              <img [src]="match?.team1Flag" alt="">
-              <strong>{{match?.team1}}</strong>
+              <h3>{{group.description}}</h3>
+              <span>{{group.matches.length}} matches</span>
             </div>
-            <span>{{match?.team1Scored ?? 'TBD'}}</span>
-          </div>
-
-          <div class="wc-match-teams">
-            <div>
-              <img [src]="match?.team2Flag" alt="">
-              <strong>{{match?.team2}}</strong>
-            </div>
-            <span>{{match?.team2Scored ?? 'TBD'}}</span>
-          </div>
-
-          <p class="wc-match-date">{{match?.kickOfDate | date : "fullDate"}}</p>
-
-          <div class="wc-predict-view" *ngIf="!match?.isEditing">
-            <div>
-              <img [src]="match?.team1Flag" alt="">
-              <span>{{match?.team1ScoredPredicted ?? '-'}}</span>
-            </div>
-            <div>
-              <img [src]="match?.team2Flag" alt="">
-              <span>{{match?.team2ScoredPredicted ?? '-'}}</span>
-            </div>
-          </div>
-
-          <div class="wc-predict-edit" *ngIf="match?.isEditing">
-            <label>
-              <img [src]="match?.team1Flag" alt="">
-              <input type="number" min="0" [(ngModel)]="match.team1ScoredPredicted">
-            </label>
-            <label>
-              <img [src]="match?.team2Flag" alt="">
-              <input type="number" min="0" [(ngModel)]="match.team2ScoredPredicted">
-            </label>
-          </div>
-
-          <button *ngIf="!match?.isPassed && !match?.isHappening" class="wc-action" type="button"
-            (click)="onPredictClick(match)">
-            {{match?.isEditing ? 'Submit' : 'Bet Now'}}
+            <i class="fa" [ngClass]="group.isExpanded ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
           </button>
 
-          <button *ngIf="match?.isHappening || match?.isPassed" class="wc-action wc-action-success" type="button"
-            (click)="getMatchPredicts(match.id)">
-            Show Predictions
-          </button>
-        </article>
+          <div class="wc-match-grid" *ngIf="group.isExpanded">
+            <article class="wc-match-card" *ngFor="let match of group.matches" [class.is-live]="match.isHappening"
+              [class.is-passed]="match.isPassed">
+              <header>
+                <span>{{match?.description || 'Match'}}</span>
+                <strong>{{match?.kickOfDate | date : "shortTime"}}</strong>
+              </header>
+
+              <div class="wc-match-teams">
+                <div>
+                  <img [src]="getFlagUrl(match?.team1Flag)" (error)="useDefaultFlag($event)" alt="">
+                  <strong>{{match?.team1}}</strong>
+                </div>
+                <span>{{match?.team1Scored ?? 'TBD'}}</span>
+              </div>
+
+              <div class="wc-match-teams">
+                <div>
+                  <img [src]="getFlagUrl(match?.team2Flag)" (error)="useDefaultFlag($event)" alt="">
+                  <strong>{{match?.team2}}</strong>
+                </div>
+                <span>{{match?.team2Scored ?? 'TBD'}}</span>
+              </div>
+
+              <p class="wc-match-date">{{match?.kickOfDate | date : "fullDate"}}</p>
+
+              <div class="wc-predict-view" *ngIf="!match?.isEditing">
+                <div>
+                  <img [src]="getFlagUrl(match?.team1Flag)" (error)="useDefaultFlag($event)" alt="">
+                  <span>{{match?.team1ScoredPredicted ?? '-'}}</span>
+                </div>
+                <div>
+                  <img [src]="getFlagUrl(match?.team2Flag)" (error)="useDefaultFlag($event)" alt="">
+                  <span>{{match?.team2ScoredPredicted ?? '-'}}</span>
+                </div>
+              </div>
+
+              <div class="wc-predict-edit" *ngIf="match?.isEditing">
+                <label>
+                  <img [src]="getFlagUrl(match?.team1Flag)" (error)="useDefaultFlag($event)" alt="">
+                  <input type="number" min="0" [(ngModel)]="match.team1ScoredPredicted">
+                </label>
+                <label>
+                  <img [src]="getFlagUrl(match?.team2Flag)" (error)="useDefaultFlag($event)" alt="">
+                  <input type="number" min="0" [(ngModel)]="match.team2ScoredPredicted">
+                </label>
+              </div>
+
+              <button *ngIf="!match?.isPassed && !match?.isHappening" class="wc-action" type="button"
+                (click)="onPredictClick(match)">
+                {{match?.isEditing ? 'Submit' : 'Bet Now'}}
+              </button>
+
+              <button *ngIf="match?.isHappening || match?.isPassed" class="wc-action wc-action-success" type="button"
+                (click)="getMatchPredicts(match.id)">
+                Show Predictions
+              </button>
+            </article>
+          </div>
+        </section>
       </div>
     </section>
   </main>

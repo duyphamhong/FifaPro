@@ -13,9 +13,11 @@ import { DataServiceService } from 'src/app/core/services/data-service.service';
 export class AdminDataSyncComponent {
   isUpdatingStandings = false;
   isUpdatingMatches = false;
+  isUpdatingPreviousMatches = false;
   isUpdatingUsers = false;
   lastStandingsResult = '';
   lastMatchesResult = '';
+  lastPreviousMatchesResult = '';
   lastUsersResult = '';
 
   constructor(
@@ -44,6 +46,17 @@ export class AdminDataSyncComponent {
       .subscribe(response => {
         this.lastMatchesResult = this.formatResult(response?.message);
         this.toastr.success(response?.message || 'Updated', 'Matches');
+      });
+  }
+
+  updatePreviousMatches(): void {
+    this.isUpdatingPreviousMatches = true;
+
+    this.dataService.updatePreviousMatches({})
+      .pipe(finalize(() => this.isUpdatingPreviousMatches = false))
+      .subscribe(response => {
+        this.lastPreviousMatchesResult = this.formatResult(response?.message);
+        this.toastr.success(response?.message || 'Updated', 'Previous matches');
       });
   }
 

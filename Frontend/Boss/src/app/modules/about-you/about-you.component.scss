@@ -806,10 +806,54 @@
   margin-bottom: 24px;
 }
 
+.wc-match-groups {
+  display: grid;
+  gap: 18px;
+}
+
+.wc-match-group {
+  background: #ffffff;
+  border: 1px solid #dde4ff;
+  border-radius: 10px;
+  box-shadow: 0 16px 34px rgba(5, 15, 70, 0.08);
+  overflow: hidden;
+}
+
+.wc-match-group-header {
+  align-items: center;
+  background: #f8f9ff;
+  border: 0;
+  color: #06185b;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  padding: 18px 20px;
+  text-align: left;
+  width: 100%;
+}
+
+.wc-match-group-header h3 {
+  color: #06185b;
+  font-size: 22px;
+  font-weight: 1000;
+  margin: 0 0 4px;
+}
+
+.wc-match-group-header span {
+  color: #5e6b93;
+  font-weight: 900;
+}
+
+.wc-match-group-header i {
+  color: #3150ff;
+  font-size: 18px;
+}
+
 .wc-match-grid {
   display: grid;
   gap: 18px;
   grid-template-columns: repeat(4, minmax(0, 1fr));
+  padding: 18px;
 }
 
 .wc-match-card {

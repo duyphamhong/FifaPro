@@ -15,6 +15,7 @@ import { environment } from 'src/environments/environment';
 })
 export class AboutYouComponent implements OnInit, OnDestroy {
   matches: any[];
+  matchGroups: any[];
   public playerPosition: any;
   nextMatch: any;
   userInfo: any;
@@ -52,6 +53,7 @@ export class AboutYouComponent implements OnInit, OnDestroy {
   isAdmin: boolean = false;
 
   baseUrl = '';
+  defaultFlagUrl = 'assets/images/default-flag.svg';
 
   isShowPredictPopup: boolean;
   isShowPasswordPopup: boolean;
@@ -71,6 +73,7 @@ export class AboutYouComponent implements OnInit, OnDestroy {
     private route: Router,
     private toasrt: ToastrService) {
     this.matches = [];
+    this.matchGroups = [];
     this.currentUserName = this.storage.getUserName();
     this.oldPass = '';
     this.newPass = '';
@@ -141,6 +144,7 @@ export class AboutYouComponent implements OnInit, OnDestroy {
         this.matches.forEach(element => {
           element.isEditing = false;
         });
+        this.prepareMatchGroups();
 
         this.playerPosition = requestTwo.result;
         this.prepareForPaging(this.playerPosition.topHighestFreeUsers);
@@ -262,6 +266,15 @@ export class AboutYouComponent implements OnInit, OnDestroy {
     document.getElementById('fixtures')?.scrollIntoView({ behavior: 'smooth' });
   }
 
+  getFlagUrl(flagUrl: string): string {
+    return flagUrl || this.defaultFlagUrl;
+  }
+
+  useDefaultFlag(event: Event): void {
+    const image = event.target as HTMLImageElement;
+    image.src = this.defaultFlagUrl;
+  }
+
   changePage(pageIndex: number) {
     this.currentPage = pageIndex + 1;
     this.rankingPaging = this.ranking.slice(pageIndex * 10, pageIndex * 10 + 10);
@@ -296,6 +309,10 @@ export class AboutYouComponent implements OnInit, OnDestroy {
   }
   hidePredict() {
     this.isShowPredictPopup = false;
+  }
+
+  toggleMatchGroup(group: any) {
+    group.isExpanded = !group.isExpanded;
   }
 
   postChat() {
@@ -407,6 +424,49 @@ export class AboutYouComponent implements OnInit, OnDestroy {
         ? this.playerPosition.topHighestFreeUsers
         : this.playerPosition.top3HighestUsers);
     });
+  }
+
+  private prepareMatchGroups(): void {
+    const orderedDescriptions = [
+      'Group stage',
+      'Round of 32',
+      'Round of 16',
+      'Quarter-finals',
+      'Semi-finals',
+      'Final'
+    ];
+
+    const groups = new Map<string, any[]>();
+    this.matches.forEach(match => {
+      const groupName = match.description || 'Other';
+      if (!groups.has(groupName)) {
+        groups.set(groupName, []);
+      }
+
+      groups.get(groupName)?.push(match);
+    });
+
+    this.matchGroups = Array.from(groups.keys())
+      .sort((a, b) => {
+        const firstIndex = orderedDescriptions.indexOf(a);
+        const secondIndex = orderedDescriptions.indexOf(b);
+        if (firstIndex === -1 && secondIndex === -1) {
+          return a.localeCompare(b);
+        }
+        if (firstIndex === -1) {
+          return 1;
+        }
+        if (secondIndex === -1) {
+          return -1;
+        }
+        return firstIndex - secondIndex;
+      })
+      .map((description, index) => ({
+        description: description,
+        isExpanded: index === 0,
+        matches: (groups.get(description) || []).sort((a, b) =>
+          new Date(a.kickOfDate).getTime() - new Date(b.kickOfDate).getTime())
+      }));
   }
 
   private startCountdown(): void {

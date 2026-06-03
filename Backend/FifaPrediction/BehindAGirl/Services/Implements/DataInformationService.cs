@@ -72,94 +72,129 @@ namespace BehindAGirl.Services.Implements
 
 		public async Task<bool> UpdatePreviousMatch(UpdatePreviousMatchModel model)
 		{
-			Match previousMatch;
-			if (string.IsNullOrEmpty(model.MatchId))
+			model = model ?? new UpdatePreviousMatchModel();
+			var isBulkUpdate = string.IsNullOrEmpty(model.MatchId);
+			List<Match> previousMatches;
+			if (isBulkUpdate)
 			{
-				previousMatch = await _dataInformationRepository.GetPreviousMatch(isGetForUpdate: true);
+				previousMatches = await _dataInformationRepository.GetPreviousMatchesForUpdate();
 			}
 			else
 			{
+				if (!Guid.TryParse(model.MatchId, out var matchId))
+				{
+					return false;
+				}
+
 				var matches = await _dataInformationRepository.GetPreviousMatches();
-				previousMatch = matches.FirstOrDefault(x => x.Id == new Guid(model.MatchId));
+				previousMatches = matches.Where(x => x.Id == matchId).ToList();
 			}
 
-			if (previousMatch != null)
-			{
-				var userAddtionalInfos = await _userRepository.GetUserAdditionInfos();
-
-				//Crawl data
-				var web = new HtmlWeb();
-				var detailDocument = await web.LoadFromWebAsync(previousMatch.DetailUrl);
-
-				/**Euro**/
-				//var scoreNode = detailDocument.DocumentNode.GetChildNode("div", "class", "match-row--flex js-match-row", Common.Constants.CompareModeEnum.Contains);
-
-				//previousMatch.Team1Scored = scoreNode.GetChildNode("span", "class", "js-team--home-score home-score", Common.Constants.CompareModeEnum.Equal)?.InnerText?.TrimInnerText().ToIntNullable();
-				//previousMatch.Team2Scored = scoreNode.GetChildNode("span", "class", "js-team--away-score away-score", Common.Constants.CompareModeEnum.Equal)?.InnerText?.TrimInnerText().ToIntNullable();
-
-				/**WorldCup**/
-				var divs = detailDocument.DocumentNode.GetChildNodeList("div", "class", "footballbox", Common.Constants.CompareModeEnum.Equal);
-
-				foreach (var div in divs)
-				{
-					var score = div.GetChildNode("th", "class", "fscore", Common.Constants.CompareModeEnum.Equal)
-									.ChildNodes.FirstOrDefault().InnerText.TrimInnerText();
-					var detailUrl = div.GetChildNode("tr", "class", "fgoals", Common.Constants.CompareModeEnum.Equal)
-									.GetChildNode("a", "class", "external text", Common.Constants.CompareModeEnum.Equal).GetAttributeValue("href", "").TrimInnerText();
-					var stadium = div.GetChildNode("div", "itemprop", "location", Common.Constants.CompareModeEnum.Equal).InnerText.TrimInnerText();
-					var team1 = div.GetChildNode("th", "class", "fhome", Common.Constants.CompareModeEnum.Equal).InnerText.TrimInnerText();
-					var team2 = div.GetChildNode("th", "class", "faway", Common.Constants.CompareModeEnum.Equal).InnerText.TrimInnerText();
-
-					if (previousMatch.Team1 == team1 && previousMatch.Team2 == team2)
-					{
-						var scored = score.IndexOf(" ") > 0 ? score.Split(" ")[0].Split("–") : score.Split("–");
-						previousMatch.Team1Scored = scored[0].ToIntNullable();
-						previousMatch.Team2Scored = scored[1].ToIntNullable();
-
-						previousMatch.Winner = (previousMatch.Team1Scored == null || previousMatch.Team1Scored == previousMatch.Team2Scored) ? null : previousMatch.Team1Scored > previousMatch.Team2Scored ? previousMatch.Team1 : previousMatch.Team2;
-						previousMatch.Draw = previousMatch.Team1Scored != null && previousMatch.Team1Scored == previousMatch.Team2Scored ? true : null;
-
-						break;
-					}
-				}
-
-				if(previousMatch.Team1Scored == null && previousMatch.Team1Scored == null)
-                {
-					return false;
-                }
-
-				previousMatch.AfterMatchSummary = model.AfterMatchSummary;
-
-				//Get predictions
-				var predictions = await _dataInformationRepository.GetPredictionsByMatchId(previousMatch.Id);
-				if (predictions.Any(x => x.WonType != null))
-				{
-					return false;
-				}
-
-				foreach (var item in predictions)
-				{
-					var wontype = GetWonType(previousMatch, item);
-					item.WonType = (int?)wontype;
-					item.PointCollected = wontype.ConvertToPointCollected(previousMatch.Description);
-
-					//Update point for user
-					userAddtionalInfos.FirstOrDefault(x => x.UserName == item.UserName).CurrentCoins += item.PointCollected.Value;
-
-					//Update prediction
-					await _dataInformationRepository.SetPrediction(item);
-				}
-
-				//update db
-				await _dataInformationRepository.UpdatePreviousMatches(previousMatch);
-				await _userRepository.UpdateUserAdditionInfo(userAddtionalInfos);
-
-				return true;
-			}
-			else
+			if (previousMatches == null || !previousMatches.Any())
 			{
 				return false;
 			}
+
+			var userAddtionalInfos = await _userRepository.GetUserAdditionInfos();
+			var isUpdated = false;
+
+			foreach (var previousMatch in previousMatches)
+			{
+				if (await TryUpdatePreviousMatch(previousMatch, model, userAddtionalInfos, isBulkUpdate))
+				{
+					isUpdated = true;
+				}
+			}
+
+			if (isUpdated)
+			{
+				await _userRepository.UpdateUserAdditionInfo(userAddtionalInfos);
+			}
+
+			return isUpdated;
+		}
+
+		private async Task<bool> TryUpdatePreviousMatch(Match previousMatch, UpdatePreviousMatchModel model, List<UserAddtionalInformation> userAddtionalInfos, bool isBulkUpdate)
+		{
+			if (previousMatch == null)
+			{
+				return false;
+			}
+
+			//Crawl data
+			var web = new HtmlWeb();
+			var detailDocument = await web.LoadFromWebAsync(previousMatch.DetailUrl);
+
+			/**Euro**/
+			//var scoreNode = detailDocument.DocumentNode.GetChildNode("div", "class", "match-row--flex js-match-row", Common.Constants.CompareModeEnum.Contains);
+
+			//previousMatch.Team1Scored = scoreNode.GetChildNode("span", "class", "js-team--home-score home-score", Common.Constants.CompareModeEnum.Equal)?.InnerText?.TrimInnerText().ToIntNullable();
+			//previousMatch.Team2Scored = scoreNode.GetChildNode("span", "class", "js-team--away-score away-score", Common.Constants.CompareModeEnum.Equal)?.InnerText?.TrimInnerText().ToIntNullable();
+
+			/**WorldCup**/
+			var divs = detailDocument.DocumentNode.GetChildNodeList("div", "class", "footballbox", Common.Constants.CompareModeEnum.Equal);
+
+			foreach (var div in divs)
+			{
+				var score = div.GetChildNode("th", "class", "fscore", Common.Constants.CompareModeEnum.Equal)
+								.ChildNodes.FirstOrDefault().InnerText.TrimInnerText();
+				var detailUrl = div.GetChildNode("tr", "class", "fgoals", Common.Constants.CompareModeEnum.Equal)
+								.GetChildNode("a", "class", "external text", Common.Constants.CompareModeEnum.Equal).GetAttributeValue("href", "").TrimInnerText();
+				var stadium = div.GetChildNode("div", "itemprop", "location", Common.Constants.CompareModeEnum.Equal).InnerText.TrimInnerText();
+				var team1 = div.GetChildNode("th", "class", "fhome", Common.Constants.CompareModeEnum.Equal).InnerText.TrimInnerText();
+				var team2 = div.GetChildNode("th", "class", "faway", Common.Constants.CompareModeEnum.Equal).InnerText.TrimInnerText();
+
+				if (previousMatch.Team1 == team1 && previousMatch.Team2 == team2)
+				{
+					var scored = score.IndexOf(" ") > 0 ? score.Split(" ")[0].Split("–") : score.Split("–");
+					previousMatch.Team1Scored = scored[0].ToIntNullable();
+					previousMatch.Team2Scored = scored[1].ToIntNullable();
+
+					previousMatch.Winner = (previousMatch.Team1Scored == null || previousMatch.Team1Scored == previousMatch.Team2Scored) ? null : previousMatch.Team1Scored > previousMatch.Team2Scored ? previousMatch.Team1 : previousMatch.Team2;
+					previousMatch.Draw = previousMatch.Team1Scored != null && previousMatch.Team1Scored == previousMatch.Team2Scored ? true : null;
+
+					break;
+				}
+			}
+
+			if (previousMatch.Team1Scored == null || previousMatch.Team2Scored == null)
+			{
+				return false;
+			}
+
+			if (!isBulkUpdate || !string.IsNullOrWhiteSpace(model.AfterMatchSummary))
+			{
+				previousMatch.AfterMatchSummary = model.AfterMatchSummary;
+			}
+
+			//Get predictions
+			var predictions = await _dataInformationRepository.GetPredictionsByMatchId(previousMatch.Id);
+			if (predictions.Any(x => x.WonType != null))
+			{
+				return false;
+			}
+
+			foreach (var item in predictions)
+			{
+				var wontype = GetWonType(previousMatch, item);
+				item.WonType = (int?)wontype;
+				item.PointCollected = wontype.ConvertToPointCollected(previousMatch.Description);
+
+				//Update point for user
+				var userAddtionalInfo = userAddtionalInfos.FirstOrDefault(x => x.UserName == item.UserName);
+				if (userAddtionalInfo != null)
+				{
+					userAddtionalInfo.CurrentCoins += item.PointCollected.Value;
+				}
+
+				//Update prediction
+				await _dataInformationRepository.SetPrediction(item);
+			}
+
+			//update db
+			await _dataInformationRepository.UpdatePreviousMatches(previousMatch);
+
+			return true;
 		}
 
 		private WonType GetWonType(Match previousMatch, Prediction prediction)

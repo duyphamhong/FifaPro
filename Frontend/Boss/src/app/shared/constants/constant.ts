@@ -18,4 +18,5 @@ export class Api{
   public static GET_MATCH_PREDICTS = "/api/match/match-predicts";
   public static UPDATE_STANDINGS = "/api/Data/update-standings";
   public static UPDATE_MATCHES = "/api/Data/update-matches";
+  public static UPDATE_PREVIOUS_MATCHES = "/api/Data/update-previous-matches";
 }

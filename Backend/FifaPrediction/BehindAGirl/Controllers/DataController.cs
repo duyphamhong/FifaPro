@@ -1,4 +1,5 @@
 ﻿using BehindAGirl.Messages.Responses;
+using BehindAGirl.Models;
 using BehindAGirl.Services.Interfaces;
 using Bot.Crawlers;
 using Microsoft.AspNetCore.Authorization;
@@ -16,9 +17,11 @@ namespace BehindAGirl.Controllers
     public class DataController : ControllerBase
     {
         private readonly ICrawlerService _crawlerService;
-        public DataController(ICrawlerService crawlerService)
+        private readonly IDataInformationService _dataInformationService;
+        public DataController(ICrawlerService crawlerService, IDataInformationService dataInformationService)
         {
             _crawlerService = crawlerService;
+            _dataInformationService = dataInformationService;
         }
 
         [HttpGet]
@@ -46,6 +49,20 @@ namespace BehindAGirl.Controllers
             {
                 Status = "OK",
                 Message = "Updated"
+            });
+        }
+
+        [HttpGet]
+        [Route("update-previous-matches")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdatePreviousMatches()
+        {
+            var result = await _dataInformationService.UpdatePreviousMatch(new UpdatePreviousMatchModel());
+
+            return Ok(new ApiResponse
+            {
+                Status = result ? "OK" : "Error",
+                Message = result ? "Updated previous matches" : "No previous matches to update"
             });
         }
 

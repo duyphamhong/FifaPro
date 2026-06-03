@@ -259,6 +259,22 @@ namespace BehindAGirl.Repositoties.Interfaces
             }
         }
 
+        public async Task<List<Match>> GetPreviousMatchesForUpdate()
+        {
+            try
+            {
+                return _context.Matches
+                    .Where(x => x.KickOfDate < DateTime.UtcNow && x.Winner == null && x.Draw == null)
+                    .OrderBy(x => x.KickOfDate)
+                    .ToList();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
         public async Task<List<Match>> GetPreviousMatches()
         {
             try

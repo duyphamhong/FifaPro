@@ -17,6 +17,7 @@ namespace BehindAGirl.Repositoties.Interfaces
         Task<List<Prediction>> GetPredictions();
         Task<List<Prediction>> GetPredictionsByMatchId(Guid matchId);
         Task<bool> UpdatePreviousMatches(Match match);
+        Task<List<Match>> GetPreviousMatchesForUpdate();
         Task<List<Match>> GetPreviousMatches();
         Task<List<Match>> GetAllMatches();
         Task<List<Team>> GetAllTeams();

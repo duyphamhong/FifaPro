@@ -45,6 +45,19 @@
 
         <article class="admin-action">
           <div>
+            <h2>Previous matches</h2>
+            <p>Update ended matches, calculate prediction points, and refresh player rankings.</p>
+          </div>
+          <button class="w3-button w3-blue" type="button" [disabled]="isUpdatingPreviousMatches"
+            (click)="updatePreviousMatches()">
+            <i class="fa fa-refresh fa-fw" [ngClass]="{'w3-spin': isUpdatingPreviousMatches}"></i>
+            {{isUpdatingPreviousMatches ? 'Updating' : 'Update previous matches'}}
+          </button>
+          <p class="admin-result" *ngIf="lastPreviousMatchesResult">{{lastPreviousMatchesResult}}</p>
+        </article>
+
+        <article class="admin-action">
+          <div>
             <h2>User additional information</h2>
             <p>Create missing UserAddtionalInformations records for registered players.</p>
           </div>

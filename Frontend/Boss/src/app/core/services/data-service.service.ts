@@ -70,4 +70,8 @@ export class DataServiceService {
   updateMatches(data: any): Observable<any> {
     return this.serviceInvoker.get(data, Api.UPDATE_MATCHES);
   }
+
+  updatePreviousMatches(data: any): Observable<any> {
+    return this.serviceInvoker.get(data, Api.UPDATE_PREVIOUS_MATCHES);
+  }
 }

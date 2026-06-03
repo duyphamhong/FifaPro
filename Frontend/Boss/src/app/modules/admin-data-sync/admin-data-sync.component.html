@@ -42,6 +42,19 @@
           </button>
           <p class="admin-result" *ngIf="lastMatchesResult">{{lastMatchesResult}}</p>
         </article>
+
+        <article class="admin-action">
+          <div>
+            <h2>User additional information</h2>
+            <p>Create missing UserAddtionalInformations records for registered players.</p>
+          </div>
+          <button class="w3-button w3-green" type="button" [disabled]="isUpdatingUsers"
+            (click)="updateUserAdditionalInformation()">
+            <i class="fa fa-user-plus fa-fw" [ngClass]="{'w3-spin': isUpdatingUsers}"></i>
+            {{isUpdatingUsers ? 'Updating' : 'Update users'}}
+          </button>
+          <p class="admin-result" *ngIf="lastUsersResult">{{lastUsersResult}}</p>
+        </article>
       </div>
     </section>
   </main>

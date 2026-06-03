@@ -34,6 +34,10 @@ export class DataServiceService {
     return this.serviceInvoker.get(data, Api.GET_USER_INFO);
   }
 
+  addUserAdditionalInformation(data: any): Observable<any> {
+    return this.serviceInvoker.get(data, Api.ADD_USER_ADDITIONAL_INFORMATION);
+  }
+
   setChampion(data: any): Observable<any> {
     return this.serviceInvoker.post(data, Api.SET_CHAMPION);
   }

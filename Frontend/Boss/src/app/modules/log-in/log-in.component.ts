@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LocalStorageService } from 'src/app/core/services/bases/local-storage.service';
+import { DataServiceService } from 'src/app/core/services/data-service.service';
 
 @Component({
   selector: 'app-log-in',
@@ -29,7 +30,8 @@ export class LogInComponent implements OnInit {
   constructor(private authen : AuthService,
     private storage: LocalStorageService,
     private routes : Router,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private dataService: DataServiceService
     ) { }
 
   ngOnInit(): void {
@@ -69,7 +71,10 @@ export class LogInComponent implements OnInit {
         userName: this.registerForm.value.userName,
         password: this.registerForm.value.password
       }).subscribe(response => {
-        this.completeLogin(response);
+        this.storeLogin(response);
+        this.dataService.addUserAdditionalInformation({}).subscribe(() => {
+          this.routes.navigate(['/about-you']);
+        });
       });
     });
   }
@@ -79,9 +84,13 @@ export class LogInComponent implements OnInit {
   }
 
   private completeLogin(response: any): void {
+    this.storeLogin(response);
+    this.routes.navigate(['/about-you']);
+  }
+
+  private storeLogin(response: any): void {
     this.storage.setAccessToken(response.token);
     this.storage.setUserName(response.userName);
-    this.routes.navigate(['/about-you']);
   }
 
 }

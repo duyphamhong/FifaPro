@@ -13,8 +13,10 @@ import { DataServiceService } from 'src/app/core/services/data-service.service';
 export class AdminDataSyncComponent {
   isUpdatingStandings = false;
   isUpdatingMatches = false;
+  isUpdatingUsers = false;
   lastStandingsResult = '';
   lastMatchesResult = '';
+  lastUsersResult = '';
 
   constructor(
     private dataService: DataServiceService,
@@ -42,6 +44,17 @@ export class AdminDataSyncComponent {
       .subscribe(response => {
         this.lastMatchesResult = this.formatResult(response?.message);
         this.toastr.success(response?.message || 'Updated', 'Matches');
+      });
+  }
+
+  updateUserAdditionalInformation(): void {
+    this.isUpdatingUsers = true;
+
+    this.dataService.addUserAdditionalInformation({})
+      .pipe(finalize(() => this.isUpdatingUsers = false))
+      .subscribe(response => {
+        this.lastUsersResult = this.formatResult(response?.message);
+        this.toastr.success(response?.message || 'Updated', 'User additional information');
       });
   }
 

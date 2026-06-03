@@ -1,0 +1,34 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build backend services",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "build Who",
+        "build BehindAGirl"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "build BehindAGirl",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "${workspaceFolder}/Backend/FifaPrediction/BehindAGirl/BehindAGirl.csproj"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build Who",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "${workspaceFolder}/Backend/FifaPrediction/Who/Who/Who.csproj"
+      ],
+      "problemMatcher": "$msCompile"
+    }
+  ]
+}

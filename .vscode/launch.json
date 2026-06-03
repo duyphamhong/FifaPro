@@ -1,0 +1,44 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "BehindAGirl",
+      "type": "coreclr",
+      "request": "launch",
+      "program": "${workspaceFolder}/Backend/FifaPrediction/BehindAGirl/bin/Debug/net10.0/BehindAGirl.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/Backend/FifaPrediction/BehindAGirl",
+      "stopAtEntry": false,
+      "internalConsoleOptions": "openOnSessionStart",
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_URLS": "https://localhost:6001;http://localhost:6000"
+      }
+    },
+    {
+      "name": "Who",
+      "type": "coreclr",
+      "request": "launch",
+      "program": "${workspaceFolder}/Backend/FifaPrediction/Who/Who/bin/Debug/net10.0/Who.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/Backend/FifaPrediction/Who/Who",
+      "stopAtEntry": false,
+      "internalConsoleOptions": "openOnSessionStart",
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_URLS": "https://localhost:5001;http://localhost:5000"
+      }
+    }
+  ],
+  "compounds": [
+    {
+      "name": "F5 Debug Both Services",
+      "preLaunchTask": "build backend services",
+      "configurations": [
+        "BehindAGirl",
+        "Who"
+      ],
+      "stopAll": true
+    }
+  ]
+}

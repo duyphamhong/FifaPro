@@ -1,0 +1,48 @@
+<div class="admin-shell">
+  <div class="w3-bar w3-teal worldcup-app-bar admin-topbar">
+    <img class="w3-bar-item w3-hide-small" src="../../../assets/images/logo.png" height="80" width="100"
+      alt="UEFA Euro 2024">
+    <button class="w3-button w3-right w3-blue admin-topbar-button" (click)="logOut()">
+      <i class="fa fa-sign-out fa-fw"></i> LogOut
+    </button>
+    <button class="w3-button w3-right w3-white admin-topbar-button" (click)="backToGame()">
+      <i class="fa fa-arrow-left fa-fw"></i> Back
+    </button>
+  </div>
+
+  <main class="admin-content">
+    <section class="admin-panel">
+      <header class="admin-header">
+        <p class="admin-kicker">Admin</p>
+        <h1>Data Sync</h1>
+      </header>
+
+      <div class="admin-actions">
+        <article class="admin-action">
+          <div>
+            <h2>Standings</h2>
+            <p>Refresh group standings and team data from the crawler source.</p>
+          </div>
+          <button class="w3-button w3-green" type="button" [disabled]="isUpdatingStandings"
+            (click)="updateStandings()">
+            <i class="fa fa-refresh fa-fw" [ngClass]="{'w3-spin': isUpdatingStandings}"></i>
+            {{isUpdatingStandings ? 'Updating' : 'Update standings'}}
+          </button>
+          <p class="admin-result" *ngIf="lastStandingsResult">{{lastStandingsResult}}</p>
+        </article>
+
+        <article class="admin-action">
+          <div>
+            <h2>Matches</h2>
+            <p>Refresh fixtures, scores, kickoff times, teams, and round labels.</p>
+          </div>
+          <button class="w3-button w3-blue" type="button" [disabled]="isUpdatingMatches" (click)="updateMatches()">
+            <i class="fa fa-refresh fa-fw" [ngClass]="{'w3-spin': isUpdatingMatches}"></i>
+            {{isUpdatingMatches ? 'Updating' : 'Update matches'}}
+          </button>
+          <p class="admin-result" *ngIf="lastMatchesResult">{{lastMatchesResult}}</p>
+        </article>
+      </div>
+    </section>
+  </main>
+</div>

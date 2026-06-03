@@ -1,0 +1,271 @@
+<!-- Navbar (sit on top) -->
+<div class="w3-top">
+    <div class="w3-bar" id="myNavbar">
+        <a class="w3-bar-item w3-button w3-hover-black w3-hide-medium w3-hide-large w3-right" href="javascript:void(0);"
+            onclick="toggleFunction()" title="Toggle Navigation Menu">
+            <i class="fa fa-bars"></i>
+        </a>
+        <a routerLink="/about-you" class="w3-bar-item w3-button"><i class="fa fa-user"></i> YOU</a>
+    </div>
+
+    <!-- Navbar on small screens -->
+    <div id="navDemo" class="w3-bar-block w3-white w3-hide w3-hide-large w3-hide-medium">
+        <a routerLink="/about-you" class="w3-bar-item w3-button" onclick="toggleFunction()">YOU</a>
+    </div>
+</div>
+
+<!-- First Parallax Image with Logo Text -->
+<div class="bgimg-1 w3-display-container w3-opacity-min" id="home">
+    <div class="w3-display-middle" style="white-space:nowrap;">
+        <span
+            class="w3-center w3-padding-large w3-black w3-xlarge w3-wide w3-animate-opacity">{{playerPosition?.top3HighestUsers[0]?.name}}<span
+                class="w3-hide-small">'s on TOP</span></span>
+    </div>
+</div>
+
+<!-- Container (About Section) -->
+<div class="w3-content w3-container w3-padding-64" id="about">
+    <div *ngIf="previousMatch?.match !== null">
+        <h2 class="w3-center">Last Match</h2>
+        <p class="w3-center"><em>
+                <img class="w3-image" style="width:40px;" srcset="{{previousMatch?.match?.team1Flag}}">&nbsp;
+                {{previousMatch?.match?.team1}}
+                <i class="fa fa-futbol-o fa-fw w3-hover-text-black w3-large w3-margin-right w3-margin-left"></i>
+                {{previousMatch?.match?.team2}}&nbsp;
+                <img class="w3-image" style="width:40px;" srcset="{{previousMatch?.match?.team2Flag}}">
+            </em></p>
+
+        <p class="w3-center"><em>{{previousMatch?.match?.team1Scored}} - {{previousMatch?.match?.team2Scored}}</em></p>
+        <p class="w3-center"><em>{{previousMatch?.match?.kickOfDate | date : "shortTime"}} -
+                {{previousMatch?.match?.kickOfDate | date :
+                "fullDate"}}<br></em></p>
+        <p class="w3-center"><em>{{previousMatch?.match?.stadium}}<br></em></p><br>
+        <p></p>
+        <div class="w3-row">
+            <div class="w3-col m6 w3-center w3-padding-large">
+                <p><b><i class="fa fa-newspaper-o w3-margin-right"></i>Bản tin</b></p><br>
+                <img src="../../../assets/images/live/1.png" class="w3-round w3-image" alt="Photo of Me" width="500"
+                    height="333">
+            </div>
+
+            <!-- Hide this text on small devices -->
+            <div class="w3-col m6 w3-padding-large">
+                <p>{{previousMatch?.match?.afterMatchSummary}}</p>
+            </div>
+        </div>
+        <hr>
+        <div class="w3-row">
+            <div class="w3-col m6 w3-center w3-padding-large">
+                <p><b><i class="fa fa-newspaper-o w3-margin-right"></i>Lời thách thức số phận của ai đó trận
+                        trước...</b>
+                </p><br>
+                <img src="../../../assets/images/live/1.png" class="w3-round w3-hide-small w3-image" alt="Photo of Me"
+                    width="500" height="333">
+            </div>
+
+            <!-- Hide this text on small devices -->
+            <div class="w3-col m6 w3-padding-large w3-center">
+                <span>{{previousMatch?.blammer}}</span>
+                <h1 class="color-animation">"{{previousMatch?.blameContent}}"</h1>
+                <span>Kết quả</span>
+                <h2 class="color-animation">{{previousMatch?.blammerResult}}</h2>
+            </div>
+        </div>
+    </div>
+
+    <hr>
+    <p class="w3-large w3-center w3-padding-16">Phong Thần Bảng</p>
+    <p class="w3-wide"><i class="fa fa-user"></i>{{playerPosition?.top3HighestUsers[0]?.name}}</p>
+    <div class="w3-light-grey">
+        <div class="w3-container w3-padding-small w3-green w3-center"
+            [ngStyle]="{'width': playerPosition?.top3HighestUsers[0]?.currentPoint * 100/ playerPosition?.maxPointCanReach + '%'}">
+            {{playerPosition?.top3HighestUsers[0]?.currentPoint}} bitcoins</div>
+    </div>
+    <p class="w3-wide"><i class="fa fa-laptop"></i>{{playerPosition?.top3HighestUsers[1]?.name}}</p>
+    <div class="w3-light-grey">
+        <div class="w3-container w3-padding-small w3-green w3-center"
+            [ngStyle]="{'width': playerPosition?.top3HighestUsers[1]?.currentPoint * 100/ playerPosition?.maxPointCanReach + '%'}">
+            {{playerPosition?.top3HighestUsers[1]?.currentPoint}} bitcoins</div>
+    </div>
+    <p class="w3-wide"><i class="fa fa-photo"></i>{{playerPosition?.top3HighestUsers[2]?.name}}</p>
+    <div class="w3-light-grey">
+        <div class="w3-container w3-padding-small w3-green w3-center"
+            [ngStyle]="{'width': playerPosition?.top3HighestUsers[2]?.currentPoint * 100/playerPosition?.maxPointCanReach + '%'}">
+            {{playerPosition?.top3HighestUsers[2]?.currentPoint}} bitcoins</div>
+    </div>
+</div>
+
+<div class="w3-row w3-center w3-teal w3-padding-16">
+    <div class="w3-quarter w3-section">
+        <span class="w3-xlarge">{{playerPosition?.totalUsers}}</span><br>
+        Con gà
+    </div>
+    <div class="w3-quarter w3-section">
+        <span class="w3-xlarge">{{playerPosition?.totalUserPredictedLastmatch}}</span><br>
+        Con gà đoán trận trước
+    </div>
+    <div class="w3-quarter w3-section">
+        <span class="w3-xlarge">{{playerPosition?.exactPredictPercentage}}%</span><br>
+        Đoán chính xác kết quả
+    </div>
+    <div class="w3-quarter w3-section">
+        <span class="w3-xlarge">{{playerPosition?.failPredictPercentage}}%</span><br>
+        Đi hộ đê
+    </div>
+</div>
+
+<!-- Second Parallax Image with Portfolio Text -->
+<div class="bgimg-2 w3-display-container w3-opacity-min">
+    <div class="w3-display-middle">
+        <span class="w3-xxlarge w3-text-white w3-wide"></span>
+    </div>
+</div>
+
+<!-- Next match section -->
+<div class="w3-content w3-container w3-padding-64">
+    <h3 class="w3-center">NEXT MATCH</h3>
+    <p class="w3-center"><em>
+            <img class="w3-image" style="width:40px;" srcset="{{nextMatch?.team1Flag}}">&nbsp;
+            {{nextMatch?.team1}}
+            <i class="fa fa-futbol-o fa-fw w3-hover-text-black w3-large w3-margin-right w3-margin-left w3-spin"></i>
+            {{nextMatch?.team2}}&nbsp;
+            <img class="w3-image" style="width:40px;" srcset="{{nextMatch?.team2Flag}}">
+        </em></p>
+
+    <p class="w3-center"><em>{{nextMatch?.kickOfDate | date : "shortTime"}} - {{nextMatch?.kickOfDate | date :
+            "fullDate"}}<br></em></p>
+    <p class="w3-center"><em>{{nextMatch?.stadium}}<br></em></p><br>
+
+    <!-- Example of comment field -->
+    <div >
+        <hr>
+        <h3 class="w3-center">Bình luận trước trận đấu</h3>
+        <div class="scroll-bar" *ngIf="chatData.length > 0">
+            <div class="w3-row w3-margin-bottom" *ngFor="let item of chatData">
+                <div class="w3-col l2 m3">
+                    <img src="{{item.avatar}}" style="width:90px;">
+                </div>
+                <div class="w3-col l10 m9">
+                    <h4>{{item.userName}} <span class="w3-opacity w3-medium">{{item?.createdDate | date : "shortTime"}},
+                            {{item?.createdDate | date : "fullDate"}}</span></h4>
+                    <p>{{item.content}}</p>
+                </div>
+            </div>
+        </div>
+        <br>
+        <div class="w3-row w3-margin-bottom">
+            <div class="w3-col l2 m3">
+                <img src="{{userAvatar}}" style="width:90px;">
+            </div>
+            <div class="w3-col l10 m9">
+                <p><textarea placeholder="fruit ninja here...." [(ngModel)]="chatContent" style="width: 100%; margin: 0px; height: 90px;"> </textarea></p>
+                <p class="w3-right"><button class="w3-button w3-green" (click)="postChat()"><b>Reply</b></button></p>
+            </div>
+        </div>
+    </div>
+
+    <hr>
+    <div class="w3-container w3-card-4 w3-light-grey">
+        <p>Làm lại cuộc đời <i class="fa fa-coffee"></i>, cờ bạc ăn nhau về sáng:</p>
+        <form [formGroup]="form" (ngSubmit)="onPredict()">
+            <div class="w3-row-padding" style="margin:0 -16px 8px -16px">
+                <div class="w3-half">
+                    <a class="w3-margin-right">Who will win?</a>
+                    <button class="w3-button w3-padding-small w3-margin-right"
+                        [ngClass]=" predictionNumber == 1 ? 'w3-black' : 'w3-light-grey' " type="button"
+                        (click)="predictClick(1)">
+                        <i class="fa fa-hand-pointer-o"></i> {{nextMatch?.team1}}
+                    </button>
+                    <button class="w3-button w3-padding-small w3-margin-right"
+                        [ngClass]=" predictionNumber == 2 ? 'w3-black': 'w3-light-grey'" type="button"
+                        (click)="predictClick(2)">
+                        <i class="fa fa-hand-pointer-o"></i> {{nextMatch?.team2}}
+                    </button>
+                    <button class="w3-button w3-padding-small w3-margin-right"
+                        [ngClass]=" predictionNumber == 3 ? 'w3-black': 'w3-light-grey'" type="button"
+                        (click)="predictClick(3)">
+                        <i class="fa fa-handshake-o"></i> Draw
+                    </button>
+                    <!-- <input class="w3-input w3-border" type="text" placeholder="Ai thắng??" required name="Name"> -->
+                </div>
+                <div class="w3-half">
+                    <div class="w3-quarter">
+                        <input class="w3-input w3-border w3-padding-small w3-margin-right" type="number" min="0"
+                            placeholder="{{nextMatch?.team1}}" required name="Email" formControlName="team1Score">
+                    </div>
+                    <div class="w3-quarter w3-center">
+                        <i
+                            class="fa fa-futbol-o fa-fw w3-hover-text-black w3-large w3-margin-right w3-margin-left "></i>
+                    </div>
+                    <div class="w3-quarter">
+                        <input class="w3-input w3-border w3-padding-small w3-margin-bottom" type="number" min="0"
+                            placeholder="{{nextMatch?.team2}}" required name="Email" formControlName="team2Score">
+                    </div>
+                </div>
+            </div>
+            <input class="w3-input w3-border" type="text"
+                placeholder="Lời thách thức số phận, cho chúng nó biết mình là ai, sẽ hiện trên bản tin sau trận đấu"
+                required name="Message" formControlName="blammer">
+            <button class="w3-button w3-green w3-right w3-section" type="submit">
+                <i class="fa fa-hand-pointer-o"></i> Xúc
+            </button>
+        </form>
+    </div>
+
+</div>
+
+<!-- Modal for full size images on click-->
+<div id="modal01" class="w3-modal w3-black" onclick="this.style.display='none'">
+    <span class="w3-button w3-large w3-black w3-display-topright" title="Close Modal Image"><i
+            class="fa fa-remove"></i></span>
+    <div class="w3-modal-content w3-animate-zoom w3-center w3-transparent w3-padding-64">
+        <img id="img01" class="w3-image">
+        <p id="caption" class="w3-opacity w3-large"></p>
+    </div>
+</div>
+
+<!-- Third Parallax Image with Portfolio Text -->
+<div class="bgimg-3 w3-display-container w3-opacity-min">
+    <div class="w3-display-middle">
+        <span class="w3-xxlarge w3-text-white w3-wide"></span>
+    </div>
+</div>
+
+<!-- Container (Contact Section) -->
+<div class="w3-content w3-container w3-padding-64" id="contact">
+    <h3 class="w3-center">LẠY ÔNG ĐI QUA LẠY BÀ ĐI LẠI</h3>
+    <p class="w3-center"><em>Xin ít tiền donate sống qua mùa dịch ạ!</em></p>
+
+    <div class="w3-row w3-padding-32 w3-section">
+        <div class="w3-col m4 w3-container">
+            <img src="../../../assets/images/avatar-duy.jpg" class="w3-image w3-round" style="width:100%">
+        </div>
+        <div class="w3-col m8 w3-panel">
+            <div class="w3-large w3-margin-bottom">
+                <i class="fa fa-map-marker fa-fw w3-hover-text-black w3-xlarge w3-margin-right"></i> Hà Nội - Đà Nẵng,
+                VN<br>
+                <i class="fa fa-phone fa-fw w3-hover-text-black w3-xlarge w3-margin-right"></i> +84 966559391<br>
+                <i class="fa fa-envelope fa-fw w3-hover-text-black w3-xlarge w3-margin-right"></i>
+                duyphamhong@gmail.com<br>
+                <i class="fa fa-facebook-official fa-fw w3-hover-text-black w3-xlarge w3-margin-right"></i> <a
+                    href="https://www.facebook.com/Blackcogs">BlackCogs</a> <br>
+                <img src="../../../assets/images/momo-icon.png"
+                    class="w3-image w3-round w3-hover-text-black w3-xlarge w3-margin-right" style="width:5%"> 0935223811
+                - Phạm Hồng Duy<br>
+                <i class="fa fa-money fa-fw w3-hover-text-black w3-xlarge w3-margin-right"></i> 0451000472790
+                Vietcombank - Phạm Hồng
+                Duy<br>
+                <br>
+                Mọi người đăng ký donate lên trang facebook cá nhân, mình sẽ chọn ra người may mắn nhất có kết quả gần
+                đúng với kết quả xổ số cùng ngày để được donate cho mình nhé.
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer class="w3-center w3-teal w3-padding-64 w3-opacity w3-hover-opacity-off">
+    <p>@Organized by <a href="https://www.facebook.com/Blackcogs" title="Cogs" target="_blank"
+            class="w3-hover-text-green"> Atlanta ODC</a></p>
+</footer>

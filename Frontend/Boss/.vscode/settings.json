@@ -1,0 +1,8 @@
+{
+    "appService.zipIgnorePattern": [
+        "node_modules{,/**}",
+        ".vscode{,/**}"
+    ],
+    "appService.defaultWebAppToDeploy": "/subscriptions/eea67a05-4aa5-4733-aa07-1c3bad600925/resourceGroups/Atlanta-Euro2020/providers/Microsoft.Web/sites/atlanta-euro-fe",
+    //"appService.deploySubpath": "dist\\boss"
+}

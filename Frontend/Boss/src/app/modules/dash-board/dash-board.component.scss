@@ -1,0 +1,62 @@
+
+/* Create a Parallax Effect */
+.bgimg-1, .bgimg-2, .bgimg-3 {
+  background-attachment: fixed;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  position: relative;
+}
+
+/* First image (Logo. Full height) */
+.bgimg-1 {
+  background-image:
+    linear-gradient(180deg, rgba(5, 5, 5, 0.18) 0%, rgba(5, 5, 5, 0.78) 100%),
+    url('../../../assets/images/stadium2.jpg');
+  min-height: 100%;
+}
+
+/* Second image (Portfolio) */
+.bgimg-2 {
+  background-image:
+    linear-gradient(180deg, rgba(5, 5, 5, 0.32) 0%, rgba(5, 5, 5, 0.82) 100%),
+    url('../../../assets/images/stadium2.jpg');
+  min-height: 320px;
+}
+
+/* Third image (Contact) */
+.bgimg-3 {
+  background-image:
+    linear-gradient(180deg, rgba(5, 5, 5, 0.22) 0%, rgba(5, 5, 5, 0.82) 100%),
+    url("../../../assets/images/place.jpg");
+  min-height: 400px;
+}
+
+.w3-wide {letter-spacing: 10px;}
+.w3-hover-opacity {cursor: pointer;}
+
+/* Turn off parallax scrolling for tablets and phones */
+@media only screen and (max-device-width: 1600px) {
+  .bgimg-1, .bgimg-2, .bgimg-3 {
+    background-attachment: scroll;
+    min-height: 400px;
+  }
+}
+
+.color-animation {
+  animation: color-change 1s infinite;
+}
+
+@keyframes color-change {
+  0% { color: #f3c64d; }
+  50% { color: #d71920; }
+  100% { color: #f3c64d; }
+}
+
+
+//scroll bar
+div.scroll-bar {
+  height: 780px;
+  overflow: scroll;
+  padding-right: 8px;
+}

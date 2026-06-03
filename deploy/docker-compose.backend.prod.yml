@@ -1,0 +1,50 @@
+name: fifa-backend
+
+services:
+  fifa-api:
+    image: ${FIFA_API_IMAGE}
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+      ConnectionStrings__ConnectionString: ${FIFA_DB_CONNECTION_STRING:-Server=sqlserver,1433;Database=WhoIdentity;User Id=sa;Password=${MSSQL_SA_PASSWORD};MultipleActiveResultSets=true;TrustServerCertificate=True}
+      JWT__ValidAudience: ${JWT_VALID_AUDIENCE:-https://localhost}
+      JWT__ValidIssuer: ${JWT_VALID_ISSUER:-http://yourdomain.com}
+      JWT__JwtExpireHours: ${JWT_EXPIRE_HOURS:-8}
+      JWT__Secret: ${JWT_SECRET}
+    ports:
+      - "${FIFA_API_PORT:-6001}:8080"
+    volumes:
+      - fifa-chat-data:/app/ChatData
+    depends_on:
+      - sqlserver
+    restart: unless-stopped
+
+  fifa-identity-api:
+    image: ${FIFA_IDENTITY_API_IMAGE}
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+      ConnectionStrings__ConnectionString: ${FIFA_DB_CONNECTION_STRING:-Server=sqlserver,1433;Database=WhoIdentity;User Id=sa;Password=${MSSQL_SA_PASSWORD};MultipleActiveResultSets=true;TrustServerCertificate=True}
+      JWT__ValidAudience: ${JWT_VALID_AUDIENCE:-https://localhost}
+      JWT__ValidIssuer: ${JWT_VALID_ISSUER:-http://yourdomain.com}
+      JWT__JwtExpireHours: ${JWT_EXPIRE_HOURS:-8}
+      JWT__Secret: ${JWT_SECRET}
+    ports:
+      - "${FIFA_IDENTITY_API_PORT:-5001}:8080"
+    depends_on:
+      - sqlserver
+    restart: unless-stopped
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: ${MSSQL_PID:-Express}
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD}
+    ports:
+      - "${MSSQL_PORT:-1433}:1433"
+    volumes:
+      - fifa-sqlserver-data:/var/opt/mssql
+    restart: unless-stopped
+
+volumes:
+  fifa-chat-data:
+  fifa-sqlserver-data:

@@ -1,0 +1,95 @@
+.admin-shell {
+  min-height: 100vh;
+  background: #f4f7fb;
+}
+
+.admin-topbar {
+  height: 80px;
+}
+
+.admin-topbar img {
+  padding: 0 !important;
+}
+
+.admin-topbar-button {
+  margin: 20px 12px 0 0;
+}
+
+.admin-content {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 128px 24px 48px;
+}
+
+.admin-panel {
+  background: #ffffff;
+  border: 1px solid #dce3ee;
+  border-radius: 6px;
+  padding: 28px;
+  box-shadow: 0 12px 32px rgba(24, 39, 75, 0.08);
+}
+
+.admin-header {
+  border-bottom: 1px solid #e6ecf4;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+}
+
+.admin-kicker {
+  color: #0f766e;
+  font-weight: 700;
+  margin: 0 0 4px;
+  text-transform: uppercase;
+}
+
+.admin-header h1 {
+  color: #18273f;
+  font-size: 32px;
+  margin: 0;
+}
+
+.admin-actions {
+  display: grid;
+  gap: 18px;
+}
+
+.admin-action {
+  align-items: center;
+  border: 1px solid #e3e9f2;
+  border-radius: 6px;
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 1fr auto;
+  padding: 20px;
+}
+
+.admin-action h2 {
+  color: #24364f;
+  font-size: 22px;
+  margin: 0 0 8px;
+}
+
+.admin-action p {
+  color: #58677d;
+  margin: 0;
+}
+
+.admin-action button {
+  min-width: 176px;
+}
+
+.admin-result {
+  color: #0f766e !important;
+  font-weight: 600;
+  grid-column: 1 / -1;
+}
+
+@media screen and (max-width: 700px) {
+  .admin-action {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-action button {
+    width: 100%;
+  }
+}

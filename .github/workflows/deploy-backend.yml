@@ -1,0 +1,138 @@
+name: Deploy Backend
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - "Backend/FifaPrediction/**"
+      - "deploy/docker/backend-api.Dockerfile"
+      - "deploy/docker/identity-api.Dockerfile"
+      - "deploy/docker-compose.backend.prod.yml"
+      - ".github/workflows/deploy-backend.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    name: Build and Push Backend Images
+    runs-on: ubuntu-latest
+    outputs:
+      fifa_api_image: ${{ steps.image-names.outputs.fifa_api_image }}
+      fifa_identity_api_image: ${{ steps.image-names.outputs.fifa_identity_api_image }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepare image names
+        id: image-names
+        shell: bash
+        run: |
+          owner="$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')"
+          repo="$(basename "${GITHUB_REPOSITORY}" | tr '[:upper:]' '[:lower:]')"
+          echo "fifa_api_image=ghcr.io/${owner}/${repo}-fifa-api" >> "$GITHUB_OUTPUT"
+          echo "fifa_identity_api_image=ghcr.io/${owner}/${repo}-fifa-identity-api" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push prediction API
+        uses: docker/build-push-action@v6
+        with:
+          context: Backend/FifaPrediction
+          file: deploy/docker/backend-api.Dockerfile
+          push: true
+          tags: |
+            ${{ steps.image-names.outputs.fifa_api_image }}:${{ github.sha }}
+            ${{ steps.image-names.outputs.fifa_api_image }}:latest
+
+      - name: Build and push identity API
+        uses: docker/build-push-action@v6
+        with:
+          context: Backend/FifaPrediction/Who
+          file: deploy/docker/identity-api.Dockerfile
+          push: true
+          tags: |
+            ${{ steps.image-names.outputs.fifa_identity_api_image }}:${{ github.sha }}
+            ${{ steps.image-names.outputs.fifa_identity_api_image }}:latest
+
+  deploy:
+    name: Deploy Backend to VPS
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepare backend directory
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          passphrase: ${{ secrets.VPS_SSH_PASSPHRASE }}
+          script: mkdir -p /opt/fifa/backend
+
+      - name: Copy backend compose file
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          passphrase: ${{ secrets.VPS_SSH_PASSPHRASE }}
+          source: deploy/docker-compose.backend.prod.yml
+          target: /opt/fifa/backend
+          strip_components: 1
+
+      - name: Pull and restart backend
+        uses: appleboy/ssh-action@v1.2.0
+        env:
+          FIFA_API_IMAGE: ${{ needs.build.outputs.fifa_api_image }}:${{ github.sha }}
+          FIFA_IDENTITY_API_IMAGE: ${{ needs.build.outputs.fifa_identity_api_image }}:${{ github.sha }}
+          GHCR_USERNAME: ${{ github.actor }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MSSQL_SA_PASSWORD: ${{ secrets.MSSQL_SA_PASSWORD }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          FIFA_DB_CONNECTION_STRING: ${{ secrets.FIFA_DB_CONNECTION_STRING }}
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          passphrase: ${{ secrets.VPS_SSH_PASSPHRASE }}
+          envs: FIFA_API_IMAGE,FIFA_IDENTITY_API_IMAGE,GHCR_USERNAME,GHCR_TOKEN,MSSQL_SA_PASSWORD,JWT_SECRET,FIFA_DB_CONNECTION_STRING
+          script: |
+            set -eu
+
+            if ! command -v docker >/dev/null 2>&1; then
+              curl -fsSL https://get.docker.com | sh
+            fi
+
+            cd /opt/fifa/backend
+            cat > .env <<EOF
+            FIFA_API_IMAGE=${FIFA_API_IMAGE}
+            FIFA_IDENTITY_API_IMAGE=${FIFA_IDENTITY_API_IMAGE}
+            MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD}
+            JWT_SECRET=${JWT_SECRET}
+            EOF
+
+            if [ -n "${FIFA_DB_CONNECTION_STRING:-}" ]; then
+              cat >> .env <<EOF
+            FIFA_DB_CONNECTION_STRING=${FIFA_DB_CONNECTION_STRING}
+            EOF
+            fi
+
+            echo "${GHCR_TOKEN}" | docker login ghcr.io -u "${GHCR_USERNAME}" --password-stdin
+            docker compose -f docker-compose.backend.prod.yml pull
+            docker compose -f docker-compose.backend.prod.yml up -d --remove-orphans
+            docker image prune -f

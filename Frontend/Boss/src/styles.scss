@@ -1,0 +1,165 @@
+@import "../node_modules/ngx-toastr/toastr.css";
+
+:root {
+  --wc-blue: #3150ff;
+  --wc-blue-strong: #0438ff;
+  --wc-navy: #06185b;
+  --wc-navy-soft: #334785;
+  --wc-surface: #ffffff;
+  --wc-page: #f2f2f2;
+  --wc-text: #07164f;
+  --wc-muted: #5e6b93;
+  --wc-success: #00a67d;
+  --wc-border: #dde4ff;
+  --wc-shadow: 0 16px 34px rgba(5, 15, 70, 0.15);
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--wc-page);
+  color: var(--wc-text);
+  font-family: Bahnschrift, "Trebuchet MS", "Segoe UI", sans-serif;
+  margin: 0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  color: var(--wc-blue);
+}
+
+a:hover {
+  color: var(--wc-navy);
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--wc-border);
+}
+
+.w3-white,
+.w3-light-grey,
+.w3-card,
+.w3-card-4,
+.mat-card {
+  background: var(--wc-surface) !important;
+  border: 1px solid var(--wc-border);
+  box-shadow: var(--wc-shadow);
+  color: var(--wc-text) !important;
+}
+
+.w3-teal,
+.worldcup-app-bar,
+.worldcup-panel-header {
+  background: var(--wc-blue) !important;
+  color: #ffffff !important;
+}
+
+.w3-blue,
+.mat-stroked-button.mat-accent,
+.mat-raised-button.mat-accent,
+.mat-flat-button.mat-accent {
+  background: var(--wc-blue) !important;
+  color: #ffffff !important;
+}
+
+.w3-green {
+  background: var(--wc-success) !important;
+  color: #ffffff !important;
+}
+
+.w3-black {
+  background: var(--wc-navy) !important;
+  color: #ffffff !important;
+}
+
+.w3-border,
+.w3-border-blue {
+  border-color: var(--wc-border) !important;
+}
+
+.w3-text-green,
+.w3-text-blue {
+  color: var(--wc-blue) !important;
+}
+
+.w3-button,
+button {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+.w3-button:hover,
+button:hover {
+  box-shadow: 0 10px 25px rgba(5, 15, 70, 0.16);
+  transform: translateY(-1px);
+}
+
+button:disabled {
+  box-shadow: none;
+  cursor: not-allowed;
+  opacity: 0.7;
+  transform: none;
+}
+
+.w3-input,
+.w3-select,
+textarea,
+input,
+select {
+  background: #f8f9ff !important;
+  border: 1px solid var(--wc-border) !important;
+  color: var(--wc-text) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--wc-muted);
+}
+
+.mat-form-field-label,
+.mat-input-element,
+.mat-card-title,
+.mat-card-header-text {
+  color: var(--wc-text) !important;
+}
+
+.mat-form-field-appearance-legacy .mat-form-field-underline,
+.mat-form-field-ripple {
+  background-color: var(--wc-blue) !important;
+}
+
+.mat-focused .mat-form-field-label {
+  color: var(--wc-blue) !important;
+}
+
+.scroll-bar::-webkit-scrollbar,
+.wc-modal-body::-webkit-scrollbar {
+  width: 10px;
+}
+
+.scroll-bar::-webkit-scrollbar-track,
+.wc-modal-body::-webkit-scrollbar-track {
+  background: #edf1ff;
+}
+
+.scroll-bar::-webkit-scrollbar-thumb,
+.wc-modal-body::-webkit-scrollbar-thumb {
+  background: var(--wc-blue);
+  border-radius: 999px;
+}
+
+.w3-opacity,
+.w3-opacity-min,
+.w3-medium.w3-opacity {
+  color: var(--wc-muted);
+}
+
+#toast-container > div {
+  opacity: 1;
+}

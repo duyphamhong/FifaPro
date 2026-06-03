@@ -1,0 +1,26 @@
+# Build output
+**/bin/
+**/obj/
+Frontend/Boss/dist/
+Frontend/Boss/tmp/
+Frontend/Boss/out-tsc/
+
+# Dependencies
+Frontend/Boss/node_modules/
+
+# IDE and local machine files
+**/.vs/
+**/.idea/
+*.suo
+*.user
+*.csproj.user
+.DS_Store
+Thumbs.db
+
+# Logs and coverage
+*.log
+Frontend/Boss/coverage/
+
+# Visual Studio publish/service artifacts
+**/Properties/PublishProfiles/
+**/Properties/ServiceDependencies/

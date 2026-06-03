@@ -1,0 +1,8 @@
+name: fifa-frontend
+
+services:
+  fifa-frontend:
+    image: ${FIFA_FRONTEND_IMAGE}
+    ports:
+      - "${FIFA_FRONTEND_PORT:-80}:80"
+    restart: unless-stopped

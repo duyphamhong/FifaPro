@@ -1,0 +1,292 @@
+<div class="wc-page">
+  <header class="wc-topbar">
+    <div class="wc-brand">
+      <img src="../../../assets/images/logo.png" alt="FIFA World Cup 2026">
+      <div>
+        <h1>FIFA World Cup 2026<sup>TM</sup></h1>
+        <p>11 June - 19 July 2026</p>
+      </div>
+    </div>
+
+    <div class="wc-countdown">
+      <div>
+        <strong>{{countdown.days}}</strong>
+        <span>days</span>
+      </div>
+      <div>
+        <strong>{{countdown.hours}}</strong>
+        <span>hours</span>
+      </div>
+      <div>
+        <strong>{{countdown.mins}}</strong>
+        <span>mins</span>
+      </div>
+      <div>
+        <strong>{{countdown.secs}}</strong>
+        <span>secs</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="wc-main">
+    <section class="wc-hero">
+      <div class="wc-hero-copy">
+        <p class="wc-eyebrow">Bracket</p>
+        <h2>Challenge</h2>
+        <p class="wc-presented">Presented by ADI PredictStreet</p>
+        <h3>Who will win the next match?</h3>
+        <button class="wc-pill" type="button" [disabled]="!nextMatch" (click)="scrollToFixtures()">
+          Submit your predictions
+        </button>
+      </div>
+
+      <div class="wc-group-card">
+        <h3>{{nextMatch?.description || 'Next Match'}}</h3>
+        <div class="wc-next-row">
+          <div class="wc-team-chip">
+            <img [src]="nextMatch?.team1Flag" alt="">
+            <span>{{nextMatch?.team1 || 'TBD'}}</span>
+          </div>
+          <div class="wc-score-slot">{{nextMatch?.team1ScoredPredicted ?? '-'}}</div>
+        </div>
+        <div class="wc-next-row">
+          <div class="wc-team-chip">
+            <img [src]="nextMatch?.team2Flag" alt="">
+            <span>{{nextMatch?.team2 || 'TBD'}}</span>
+          </div>
+          <div class="wc-score-slot">{{nextMatch?.team2ScoredPredicted ?? '-'}}</div>
+        </div>
+        <p class="wc-next-time" *ngIf="nextMatch">
+          {{nextMatch?.kickOfDate | date : "shortTime"}} - {{nextMatch?.kickOfDate | date : "fullDate"}}
+        </p>
+      </div>
+    </section>
+
+    <section class="wc-dashboard-grid">
+      <aside class="wc-panel wc-profile">
+        <div class="wc-avatar-wrap">
+          <img [src]="userInfo?.avatarUrl || 'https://www.w3schools.com/w3css/img_avatar2.png'" alt="">
+        </div>
+        <h2>{{userInfo?.userName || currentUserName}}</h2>
+        <div class="wc-stat-line">
+          <span>Total Points</span>
+          <strong>{{userInfo?.currentCoins || 0}}</strong>
+        </div>
+        <div class="wc-stat-line">
+          <span>Ranking</span>
+          <strong>{{currentRank || 0}} / {{totalUsers || 0}}</strong>
+        </div>
+        <button *ngIf="isAdmin" class="wc-action wc-action-success" type="button" (click)="goToAdminDataSync()">
+          <i class="fa fa-refresh fa-fw"></i> Data Sync
+        </button>
+        <button class="wc-action" type="button" (click)="logOut()">
+          <i class="fa fa-sign-out fa-fw"></i> LogOut
+        </button>
+      </aside>
+
+      <section class="wc-panel wc-ranking">
+        <div class="wc-section-header">
+          <div>
+            <p class="wc-eyebrow">Leaderboard</p>
+            <h2>{{isFreeRankingChoosen ? 'Free Ranking' : 'VIP Ranking'}}</h2>
+          </div>
+          <button class="wc-mini-button" type="button" (click)="changeRankType()">
+            {{isFreeRankingChoosen ? 'VIP' : 'Free'}}
+          </button>
+        </div>
+
+        <div class="wc-rank-list">
+          <div class="wc-rank-row" *ngFor="let user of rankingPaging">
+            <div class="wc-rank-medal">{{user.rank}}</div>
+            <img [src]="user.avatarUrl || 'https://www.w3schools.com/w3css/img_avatar2.png'" alt="">
+            <div>
+              <strong>{{user.name}}</strong>
+              <span>{{user.currentPoint}} pts</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="wc-paging" *ngIf="paging.length > 1">
+          <button type="button" *ngFor="let index of paging" (click)="changePage(index)"
+            [class.is-active]="currentPage == index + 1">
+            {{index + 1}}
+          </button>
+        </div>
+      </section>
+
+      <aside class="wc-panel wc-stats" *ngIf="userInfo">
+        <div class="wc-section-header">
+          <div>
+            <p class="wc-eyebrow">Player</p>
+            <h2>Statistics</h2>
+          </div>
+        </div>
+        <div class="wc-stat-line">
+          <span>Predicted</span>
+          <strong>{{userInfo?.predictedNumber}}</strong>
+        </div>
+        <div class="wc-stat-line">
+          <span>Exact score</span>
+          <strong>{{userInfo?.winnerAndScoredPredicted}}</strong>
+        </div>
+        <div class="wc-stat-line">
+          <span>Winner</span>
+          <strong>{{userInfo?.winnerPredicted}}</strong>
+        </div>
+        <div class="wc-stat-line">
+          <span>Missed</span>
+          <strong>{{userInfo?.losePredicted}}</strong>
+        </div>
+      </aside>
+    </section>
+
+    <section class="wc-tools-grid">
+      <div class="wc-panel" *ngIf="userInfo?.canChangeChampion">
+        <div class="wc-section-header">
+          <div>
+            <p class="wc-eyebrow">Tournament</p>
+            <h2>Champion Pick</h2>
+          </div>
+        </div>
+        <select class="wc-input" [(ngModel)]="champion">
+          <option value="">Select team</option>
+          <option *ngFor="let item of teams" [value]="item.name">{{item.name}}</option>
+        </select>
+        <input class="wc-input" type="number" min="0" [(ngModel)]="samePrediction">
+        <button class="wc-action wc-action-success" type="button" (click)="setChampion()">Bet Now</button>
+      </div>
+
+      <div class="wc-panel">
+        <div class="wc-section-header">
+          <div>
+            <p class="wc-eyebrow">Account</p>
+            <h2>Password</h2>
+          </div>
+        </div>
+        <input class="wc-input" type="password" placeholder="Old Password" [(ngModel)]="oldPass">
+        <input class="wc-input" type="password" placeholder="New Password" [(ngModel)]="newPass">
+        <input class="wc-input" type="password" placeholder="Confirm Password" [(ngModel)]="confirmPass">
+        <button class="wc-action" type="button" (click)="changePassword()">Submit</button>
+      </div>
+
+      <div class="wc-panel">
+        <div class="wc-section-header">
+          <div>
+            <p class="wc-eyebrow">Recent</p>
+            <h2>History</h2>
+          </div>
+          <button class="wc-mini-button" type="button" onclick="document.getElementById('id01').style.display='block'">
+            Detail
+          </button>
+        </div>
+        <div class="wc-history-mini" *ngFor="let item of histories.slice(0,2)">
+          <strong>{{item?.team1}} - {{item?.team2}}</strong>
+          <span>{{item?.kickOfDate | date : "dd/MM/yyyy"}} | {{item?.predictResult || 'Pending'}}</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="fixtures" class="wc-fixtures">
+      <div class="wc-section-header wc-fixtures-header">
+        <div>
+          <p class="wc-eyebrow">World Cup</p>
+          <h2>Fixtures and Results</h2>
+        </div>
+      </div>
+
+      <div class="wc-match-grid">
+        <article class="wc-match-card" *ngFor="let match of matches"
+          [class.is-live]="match.isHappening"
+          [class.is-passed]="match.isPassed">
+          <header>
+            <span>{{match?.description || 'Match'}}</span>
+            <strong>{{match?.kickOfDate | date : "shortTime"}}</strong>
+          </header>
+
+          <div class="wc-match-teams">
+            <div>
+              <img [src]="match?.team1Flag" alt="">
+              <strong>{{match?.team1}}</strong>
+            </div>
+            <span>{{match?.team1Scored ?? 'TBD'}}</span>
+          </div>
+
+          <div class="wc-match-teams">
+            <div>
+              <img [src]="match?.team2Flag" alt="">
+              <strong>{{match?.team2}}</strong>
+            </div>
+            <span>{{match?.team2Scored ?? 'TBD'}}</span>
+          </div>
+
+          <p class="wc-match-date">{{match?.kickOfDate | date : "fullDate"}}</p>
+
+          <div class="wc-predict-view" *ngIf="!match?.isEditing">
+            <div>
+              <img [src]="match?.team1Flag" alt="">
+              <span>{{match?.team1ScoredPredicted ?? '-'}}</span>
+            </div>
+            <div>
+              <img [src]="match?.team2Flag" alt="">
+              <span>{{match?.team2ScoredPredicted ?? '-'}}</span>
+            </div>
+          </div>
+
+          <div class="wc-predict-edit" *ngIf="match?.isEditing">
+            <label>
+              <img [src]="match?.team1Flag" alt="">
+              <input type="number" min="0" [(ngModel)]="match.team1ScoredPredicted">
+            </label>
+            <label>
+              <img [src]="match?.team2Flag" alt="">
+              <input type="number" min="0" [(ngModel)]="match.team2ScoredPredicted">
+            </label>
+          </div>
+
+          <button *ngIf="!match?.isPassed && !match?.isHappening" class="wc-action" type="button"
+            (click)="onPredictClick(match)">
+            {{match?.isEditing ? 'Submit' : 'Bet Now'}}
+          </button>
+
+          <button *ngIf="match?.isHappening || match?.isPassed" class="wc-action wc-action-success" type="button"
+            (click)="getMatchPredicts(match.id)">
+            Show Predictions
+          </button>
+        </article>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div id="id01" class="w3-modal w3-animate-opacity">
+  <div class="w3-modal-content wc-modal">
+    <header>
+      <span onclick="document.getElementById('id01').style.display='none'">&times;</span>
+      <h2>History</h2>
+    </header>
+    <div class="wc-modal-body">
+      <div class="wc-history-row" *ngFor="let item of histories">
+        <strong>{{item?.team1}} - {{item?.team2}}</strong>
+        <span>Kicked: {{item?.kickOfDate | date : "dd/MM/yyyy"}}</span>
+        <span>Bet: {{item?.predictedDate | date : "dd/MM/yyyy"}}</span>
+        <em>{{item?.predictResult || 'Pending'}}</em>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="match-predict" class="w3-modal w3-animate-opacity" [ngClass]="{'show-popup': isShowPredictPopup}">
+  <div class="w3-modal-content wc-modal">
+    <header>
+      <span (click)="hidePredict()">&times;</span>
+      <h2>{{matchPredictions?.team1}} - {{matchPredictions?.team2}}</h2>
+    </header>
+    <div class="wc-modal-body wc-predictions-grid">
+      <div class="wc-prediction-card" *ngFor="let prediction of matchPredictions.predictions">
+        <strong>{{prediction?.userName}}</strong>
+        <span>{{prediction?.team1Score}} - {{prediction?.team2Score}}</span>
+        <em>{{prediction?.predictedDate | date : "shortTime"}} - {{prediction?.predictedDate | date : "dd/MM/yyyy"}}</em>
+      </div>
+    </div>
+  </div>
+</div>

@@ -15,4 +15,4 @@ RUN npm run build
 FROM nginx:1.27-alpine AS final
 COPY deploy/nginx/frontend.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/dist/boss /usr/share/nginx/html
-EXPOSE 80
+EXPOSE 80 443

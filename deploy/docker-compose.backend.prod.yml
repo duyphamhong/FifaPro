@@ -11,7 +11,7 @@ services:
       JWT__JwtExpireHours: ${JWT_EXPIRE_HOURS:-8}
       JWT__Secret: ${JWT_SECRET}
     ports:
-      - "${FIFA_API_PORT:-6001}:8080"
+      - "127.0.0.1:${FIFA_API_PORT:-6001}:8080"
     volumes:
       - fifa-chat-data:/app/ChatData
     depends_on:
@@ -31,7 +31,7 @@ services:
       JWT__JwtExpireHours: ${JWT_EXPIRE_HOURS:-8}
       JWT__Secret: ${JWT_SECRET}
     ports:
-      - "${FIFA_IDENTITY_API_PORT:-5001}:8080"
+      - "127.0.0.1:${FIFA_IDENTITY_API_PORT:-5001}:8080"
     depends_on:
       - sqlserver
     networks:
@@ -46,7 +46,7 @@ services:
       MSSQL_PID: ${MSSQL_PID:-Express}
       MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD}
     ports:
-      - "${MSSQL_PORT:-1433}:1433"
+      - "127.0.0.1:${MSSQL_PORT:-1433}:1433"
     volumes:
       - fifa-sqlserver-data:/var/opt/mssql
     networks:

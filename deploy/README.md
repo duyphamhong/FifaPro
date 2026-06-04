@@ -20,16 +20,18 @@ Create these in GitHub repository settings under `Secrets and variables`:
 Optional secret:
 
 - `FIFA_DB_CONNECTION_STRING`: existing SQL Server connection string. If this is not set, the backend compose file uses the SQL Server container.
+- `LETSENCRYPT_EMAIL`: email address used when issuing the HTTPS certificate. If this is not set, Certbot registers without an email.
 
 ## Optional GitHub Variables
 
-- `API_BASE_URL`: public prediction API URL used by Angular, for example `http://<your-vps-host>:6001`.
-- `AUTH_BASE_URL`: public identity API URL used by Angular, for example `http://<your-vps-host>:5001`.
+- `API_BASE_URL`: public prediction API URL used by Angular. For production HTTPS, use `https://api.appzihub.fun`.
+- `AUTH_BASE_URL`: public identity API URL used by Angular. For production HTTPS, use `https://auth.appzihub.fun`.
+- `TLS_EXTRA_DOMAINS`: optional comma-separated domains to add to the Let's Encrypt certificate, for example `app.appzihub.fun`.
 
 If the optional variables are not set, the frontend workflow uses:
 
-- `http://<VPS_HOST>:6001`
-- `http://<VPS_HOST>:5001`
+- `https://api.appzihub.fun`
+- `https://auth.appzihub.fun`
 
 ## Server Paths
 
@@ -39,7 +41,39 @@ The workflows copy compose files and create `.env` files on the VPS:
 - `/opt/fifa/frontend`
 
 The backend workflow starts SQL Server, the prediction API, and the identity API.
-The frontend workflow starts nginx on port `80`.
+The frontend workflow starts nginx on ports `80` and `443`.
+
+## HTTPS
+
+The production nginx container terminates HTTPS with a Let's Encrypt certificate
+stored on the VPS under `/opt/fifa/certbot/conf`. The frontend deploy workflow
+does this automatically:
+
+1. Stops the current frontend container so Certbot can temporarily bind port `80`.
+2. Issues the initial certificate for `fifa.appzihub.fun`, `api.appzihub.fun`,
+   and `auth.appzihub.fun`, or renews the existing certificate.
+3. Starts nginx again with port `80` redirecting to `443`.
+
+Before deploying HTTPS, make sure DNS `A` records for these domains point to the
+VPS IP address:
+
+- `fifa.appzihub.fun`
+- `api.appzihub.fun`
+- `auth.appzihub.fun`
+
+If you also want `https://app.appzihub.fun`, add its DNS record and set the
+GitHub variable `TLS_EXTRA_DOMAINS` to `app.appzihub.fun` before deploying the
+frontend workflow.
+
+Make sure the VPS firewall and Hostinger firewall allow inbound traffic for:
+
+- `80` for HTTP redirects and Let's Encrypt validation.
+- `443` for HTTPS.
+
+Certificates expire after 90 days. The frontend workflow renews the certificate
+when it deploys; if deployments are infrequent, run the frontend workflow at
+least once every two months or add a server cron job that runs Certbot renew and
+restarts the frontend container.
 
 ## Nginx Deployment
 
@@ -50,19 +84,19 @@ VPS with `deploy/docker-compose.frontend.prod.yml`.
 
 After a successful frontend deployment, the site should be available at:
 
-- `http://<VPS_HOST>`
-- `http://app.appzihub.fun`
+- `https://fifa.appzihub.fun`
+- `https://api.appzihub.fun`
+- `https://auth.appzihub.fun`
 
 The same nginx container also routes the public backend domains over the shared
 Docker network `fifa-public`:
 
-- `http://api.appzihub.fun` -> prediction API container `fifa-api:8080`
-- `http://auth.appzihub.fun` -> identity API container `fifa-identity-api:8080`
-- `http://app.appzihub.fun` -> Angular frontend
-- `http://fifa.appzihub.fun` -> Angular frontend, supported as an alias for the current DNS record
+- `https://api.appzihub.fun` -> prediction API container `fifa-api:8080`
+- `https://auth.appzihub.fun` -> identity API container `fifa-identity-api:8080`
+- `https://fifa.appzihub.fun` -> Angular frontend
 
 If you want `app.appzihub.fun` specifically, add an `A` record for `app` pointing
-to the VPS IP address.
+to the VPS IP address and include it in `TLS_EXTRA_DOMAINS`.
 
 Deploy the backend workflow before the frontend workflow so the backend
 containers are available on the shared network.
@@ -71,8 +105,7 @@ containers are available on the shared network.
 
 The workflows install Docker on the VPS if it is missing. Make sure the VPS firewall and Hostinger firewall allow inbound traffic for:
 
-- `80` for the frontend.
-- `5001` for the identity API.
-- `6001` for the prediction API.
+- `80` for HTTP redirects and Let's Encrypt validation.
+- `443` for HTTPS.
 
 Do not commit passwords, private keys, or passphrases into this repository.

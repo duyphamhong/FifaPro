@@ -45,11 +45,11 @@ jobs:
           auth_base_url="${{ vars.AUTH_BASE_URL }}"
 
           if [ -z "$api_base_url" ]; then
-            api_base_url="http://api.appzihub.fun"
+            api_base_url="https://api.appzihub.fun"
           fi
 
           if [ -z "$auth_base_url" ]; then
-            auth_base_url="http://auth.appzihub.fun"
+            auth_base_url="https://auth.appzihub.fun"
           fi
 
           echo "api_base_url=${api_base_url}" >> "$GITHUB_OUTPUT"
@@ -116,6 +116,8 @@ jobs:
           FIFA_FRONTEND_IMAGE: ${{ needs.build.outputs.fifa_frontend_image }}:${{ github.sha }}
           GHCR_USERNAME: ${{ github.actor }}
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LETSENCRYPT_EMAIL: ${{ secrets.LETSENCRYPT_EMAIL }}
+          TLS_EXTRA_DOMAINS: ${{ vars.TLS_EXTRA_DOMAINS }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
@@ -123,7 +125,7 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           passphrase: ${{ secrets.VPS_SSH_PASSPHRASE }}
           timeout: 120s
-          envs: FIFA_FRONTEND_IMAGE,GHCR_USERNAME,GHCR_TOKEN
+          envs: FIFA_FRONTEND_IMAGE,GHCR_USERNAME,GHCR_TOKEN,LETSENCRYPT_EMAIL,TLS_EXTRA_DOMAINS
           script: |
             set -eu
 
@@ -137,6 +139,51 @@ jobs:
             EOF
 
             docker network create fifa-public >/dev/null 2>&1 || true
+
+            mkdir -p /opt/fifa/certbot/conf /opt/fifa/certbot/www
+
+            certbot_domains="-d fifa.appzihub.fun -d api.appzihub.fun -d auth.appzihub.fun"
+            if [ -n "${TLS_EXTRA_DOMAINS:-}" ]; then
+              old_ifs="$IFS"
+              IFS=","
+              for domain in ${TLS_EXTRA_DOMAINS}; do
+                domain="$(printf '%s' "${domain}" | xargs)"
+                if [ -n "${domain}" ]; then
+                  certbot_domains="${certbot_domains} -d ${domain}"
+                fi
+              done
+              IFS="$old_ifs"
+            fi
+
+            if [ -n "${LETSENCRYPT_EMAIL:-}" ]; then
+              certbot_email_args="--email ${LETSENCRYPT_EMAIL}"
+            else
+              certbot_email_args="--register-unsafely-without-email"
+            fi
+
+            docker compose -f docker-compose.frontend.prod.yml down || true
+
+            if [ ! -f /opt/fifa/certbot/conf/live/fifa.appzihub.fun/fullchain.pem ]; then
+              docker run --rm \
+                -p 80:80 \
+                -v /opt/fifa/certbot/conf:/etc/letsencrypt \
+                -v /opt/fifa/certbot/www:/var/www/certbot \
+                certbot/certbot certonly \
+                  --standalone \
+                  --preferred-challenges http \
+                  --non-interactive \
+                  --agree-tos \
+                  ${certbot_email_args} \
+                  ${certbot_domains}
+            else
+              docker run --rm \
+                -p 80:80 \
+                -v /opt/fifa/certbot/conf:/etc/letsencrypt \
+                -v /opt/fifa/certbot/www:/var/www/certbot \
+                certbot/certbot renew \
+                  --standalone \
+                  --non-interactive || true
+            fi
 
             echo "${GHCR_TOKEN}" | docker login ghcr.io -u "${GHCR_USERNAME}" --password-stdin
             docker compose -f docker-compose.frontend.prod.yml pull

@@ -48,13 +48,42 @@ export class CustomHttpInterceptor implements HttpInterceptor {
             this._router.navigate(['/forbidden']);
             this.toastr.error(err.message, this.languageService.translate('common.error'));
           } else if (err.status === 423) {
-            this.toastr.error(err.error.message, this.languageService.translate('toast.somethingWentWrong'),);
+            this.toastr.error(this.getErrorMessage(err), this.languageService.translate('toast.somethingWentWrong'),);
           } else {
-            this.toastr.error(err.error.message, this.languageService.translate('toast.somethingWentWrong'),);
+            this.toastr.error(this.getErrorMessage(err), this.languageService.translate('toast.somethingWentWrong'),);
           }
         }
         return throwError(err);
       })) as any;
+  }
+
+  private getErrorMessage(err: HttpErrorResponse): string {
+    const error = err.error;
+
+    if (!error) {
+      return err.message;
+    }
+
+    if (typeof error === 'string') {
+      return error;
+    }
+
+    if (Array.isArray(error)) {
+      return error
+        .map(item => item?.description || item?.message || item)
+        .filter(Boolean)
+        .join('\n');
+    }
+
+    if (error.errors) {
+      const validationMessages = Object.keys(error.errors)
+        .reduce((messages: string[], key: string) => messages.concat(error.errors[key]), []);
+      if (validationMessages.length > 0) {
+        return validationMessages.join('\n');
+      }
+    }
+
+    return error.message || error.title || err.message;
   }
 }
 

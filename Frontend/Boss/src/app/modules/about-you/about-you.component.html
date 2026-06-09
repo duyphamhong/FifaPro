@@ -336,6 +336,11 @@
       </div>
     </section>
   </main>
+
+  <button class="wc-sponsor-fab" type="button" (click)="showSponsorDialog()">
+    <i class="fa fa-money fa-fw"></i>
+    <span>{{'sponsor.button' | translate}}</span>
+  </button>
 </div>
 
 <div id="id01" class="w3-modal w3-animate-opacity">
@@ -436,6 +441,25 @@
       <button class="wc-action wc-action-success" type="button" (click)="updateAvatar()">{{'common.saveAvatar' | translate}}</button>
     </div>
   </div>
+</div>
+
+<div class="wc-sponsor-backdrop" *ngIf="isShowSponsorPopup" (click)="hideSponsorDialog()">
+  <section class="wc-sponsor-dialog" role="dialog" aria-modal="true" [attr.aria-label]="'sponsor.title' | translate"
+    (click)="$event.stopPropagation()">
+    <button class="wc-sponsor-close" type="button" [title]="'sponsor.close' | translate" (click)="hideSponsorDialog()">
+      &times;
+    </button>
+    <p class="wc-eyebrow">{{'sponsor.subtitle' | translate}}</p>
+    <h2>{{'sponsor.title' | translate}}</h2>
+    <p class="wc-sponsor-copy">{{'sponsor.message' | translate}}</p>
+    <div class="wc-sponsor-qr">
+      <img src="assets/images/sponsor.png" [alt]="'sponsor.qrAlt' | translate">
+    </div>
+    <strong>{{'sponsor.thanks' | translate}}</strong>
+    <button class="wc-action wc-action-success" type="button" (click)="hideSponsorDialog()">
+      {{'sponsor.close' | translate}}
+    </button>
+  </section>
 </div>
 
 <div id="match-predict" class="w3-modal w3-animate-opacity" [ngClass]="{'show-popup': isShowPredictPopup}">

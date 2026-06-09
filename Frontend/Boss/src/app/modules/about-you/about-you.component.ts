@@ -59,8 +59,10 @@ export class AboutYouComponent implements OnInit, OnDestroy {
   isShowPredictPopup: boolean;
   isShowPasswordPopup: boolean;
   isShowAvatarPopup: boolean;
+  isShowSponsorPopup: boolean;
   private hubConnection: signalR.HubConnection;
   private languageSubscription: Subscription | null = null;
+  private sponsorDropTimeout: any;
   countdown = {
     days: '00',
     hours: '00',
@@ -103,6 +105,7 @@ export class AboutYouComponent implements OnInit, OnDestroy {
     this.isShowPredictPopup = false;
     this.isShowPasswordPopup = false;
     this.isShowAvatarPopup = false;
+    this.isShowSponsorPopup = false;
     this.matchPredictions = {};
     this.isAdmin = this.storage.hasRole('Admin');
 
@@ -126,11 +129,16 @@ export class AboutYouComponent implements OnInit, OnDestroy {
     this.loadInfo();
     this.startCountdown();
     this.startChatConnection();
+    this.scheduleSponsorDialog();
   }
 
   ngOnDestroy(): void {
     if (this.countdownInterval) {
       clearInterval(this.countdownInterval);
+    }
+
+    if (this.sponsorDropTimeout) {
+      clearTimeout(this.sponsorDropTimeout);
     }
 
     if (this.hubConnection) {
@@ -445,6 +453,23 @@ export class AboutYouComponent implements OnInit, OnDestroy {
   hideAvatarDialog() {
     this.isShowAvatarPopup = false;
     this.avatarUrl = '';
+  }
+
+  showSponsorDialog() {
+    if (this.sponsorDropTimeout) {
+      clearTimeout(this.sponsorDropTimeout);
+      this.sponsorDropTimeout = null;
+    }
+
+    this.isShowSponsorPopup = true;
+  }
+
+  hideSponsorDialog() {
+    this.isShowSponsorPopup = false;
+  }
+
+  private scheduleSponsorDialog(): void {
+    this.sponsorDropTimeout = setTimeout(() => this.showSponsorDialog(), 10000);
   }
 
   private refreshRanking(): void {

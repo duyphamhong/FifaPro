@@ -91,7 +91,7 @@ namespace Who.Controllers
 			};
 			var result = await _userManager.CreateAsync(user, model.Password);
 			if (!result.Succeeded)
-				return StatusCode(StatusCodes.Status500InternalServerError, new ApiResponse { Status = "Error", Message = "User creation failed! Please check user details and try again." });
+				return BadRequest(result.Errors);
 
 			await _userService.SetUserStatus(user.Id, StatusEnum.Active);
 
@@ -167,10 +167,10 @@ namespace Who.Controllers
 			};
 			var result = await _userManager.CreateAsync(user, model.Password);
 
-			await _userService.SetUserStatus(user.Id, StatusEnum.Active);
-
 			if (!result.Succeeded)
-				return StatusCode(StatusCodes.Status500InternalServerError, new ApiResponse { Status = "Error", Message = "User creation failed! Please check user details and try again." });
+				return BadRequest(result.Errors);
+
+			await _userService.SetUserStatus(user.Id, StatusEnum.Active);
 
 			if (!await _roleManager.RoleExistsAsync(UserRoles.Admin))
 				await _roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));

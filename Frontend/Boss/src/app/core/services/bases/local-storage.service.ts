@@ -5,7 +5,11 @@ import { Injectable } from '@angular/core';
 })
 export class LocalStorageService {
   clearStoreage() {
+    const language = localStorage.getItem('appLanguage');
     localStorage.clear();
+    if (language) {
+      localStorage.setItem('appLanguage', language);
+    }
   }
   getAccessToken(): string {
     return localStorage.getItem("token") || '';

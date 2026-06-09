@@ -5,6 +5,7 @@ import { ToastrService } from 'ngx-toastr';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LocalStorageService } from 'src/app/core/services/bases/local-storage.service';
 import { DataServiceService } from 'src/app/core/services/data-service.service';
+import { LanguageService } from 'src/app/shared/i18n/language.service';
 
 @Component({
   selector: 'app-log-in',
@@ -31,7 +32,8 @@ export class LogInComponent implements OnInit {
     private storage: LocalStorageService,
     private routes : Router,
     private toastr: ToastrService,
-    private dataService: DataServiceService
+    private dataService: DataServiceService,
+    private languageService: LanguageService
     ) { }
 
   ngOnInit(): void {
@@ -55,7 +57,10 @@ export class LogInComponent implements OnInit {
     }
 
     if (this.registerForm.value.password !== this.registerForm.value.confirmPassword) {
-      this.toastr.error('Password confirmation does not match.', 'Create account');
+      this.toastr.error(
+        this.languageService.translate('toast.passwordMismatch'),
+        this.languageService.translate('toast.createAccount')
+      );
       return;
     }
 
@@ -66,7 +71,10 @@ export class LogInComponent implements OnInit {
     };
 
     this.authen.register(user).subscribe(() => {
-      this.toastr.success('Account created. Welcome to the game!', 'Create account');
+      this.toastr.success(
+        this.languageService.translate('toast.accountCreated'),
+        this.languageService.translate('toast.createAccount')
+      );
       this.authen.login({
         userName: this.registerForm.value.userName,
         password: this.registerForm.value.password

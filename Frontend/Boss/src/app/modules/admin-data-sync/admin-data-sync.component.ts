@@ -4,6 +4,7 @@ import { ToastrService } from 'ngx-toastr';
 import { finalize } from 'rxjs/operators';
 import { LocalStorageService } from 'src/app/core/services/bases/local-storage.service';
 import { DataServiceService } from 'src/app/core/services/data-service.service';
+import { LanguageService } from 'src/app/shared/i18n/language.service';
 
 @Component({
   selector: 'app-admin-data-sync',
@@ -24,7 +25,8 @@ export class AdminDataSyncComponent {
     private dataService: DataServiceService,
     private storage: LocalStorageService,
     private router: Router,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private languageService: LanguageService
   ) { }
 
   updateStandings(): void {
@@ -34,7 +36,8 @@ export class AdminDataSyncComponent {
       .pipe(finalize(() => this.isUpdatingStandings = false))
       .subscribe(response => {
         this.lastStandingsResult = this.formatResult(response?.message);
-        this.toastr.success(response?.message || 'Updated', 'Standings');
+        this.toastr.success(response?.message || this.languageService.translate('common.updated'),
+          this.languageService.translate('admin.standings'));
       });
   }
 
@@ -45,7 +48,8 @@ export class AdminDataSyncComponent {
       .pipe(finalize(() => this.isUpdatingMatches = false))
       .subscribe(response => {
         this.lastMatchesResult = this.formatResult(response?.message);
-        this.toastr.success(response?.message || 'Updated', 'Matches');
+        this.toastr.success(response?.message || this.languageService.translate('common.updated'),
+          this.languageService.translate('admin.matches'));
       });
   }
 
@@ -56,7 +60,8 @@ export class AdminDataSyncComponent {
       .pipe(finalize(() => this.isUpdatingPreviousMatches = false))
       .subscribe(response => {
         this.lastPreviousMatchesResult = this.formatResult(response?.message);
-        this.toastr.success(response?.message || 'Updated', 'Previous matches');
+        this.toastr.success(response?.message || this.languageService.translate('common.updated'),
+          this.languageService.translate('admin.previousMatches'));
       });
   }
 
@@ -67,7 +72,8 @@ export class AdminDataSyncComponent {
       .pipe(finalize(() => this.isUpdatingUsers = false))
       .subscribe(response => {
         this.lastUsersResult = this.formatResult(response?.message);
-        this.toastr.success(response?.message || 'Updated', 'User additional information');
+        this.toastr.success(response?.message || this.languageService.translate('common.updated'),
+          this.languageService.translate('admin.userAdditionalInformation'));
       });
   }
 
@@ -81,6 +87,6 @@ export class AdminDataSyncComponent {
   }
 
   private formatResult(message: string): string {
-    return `${new Date().toLocaleString()} - ${message || 'Updated'}`;
+    return `${new Date().toLocaleString(this.languageService.dateLocale)} - ${message || this.languageService.translate('common.updated')}`;
   }
 }

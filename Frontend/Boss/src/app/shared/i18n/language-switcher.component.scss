@@ -1,0 +1,45 @@
+:host {
+  display: inline-flex;
+}
+
+.language-switcher {
+  align-items: center;
+  background: #eef3ff;
+  border: 1px solid rgba(6, 24, 91, 0.14);
+  border-radius: 8px;
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+}
+
+.language-switcher button {
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  color: #06185b;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 900;
+  height: 34px;
+  min-width: 42px;
+  padding: 0 10px;
+}
+
+.language-switcher button.is-active {
+  background: #3150ff;
+  color: #ffffff;
+}
+
+:host.is-dark .language-switcher {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.36);
+}
+
+:host.is-dark .language-switcher button {
+  color: #ffffff;
+}
+
+:host.is-dark .language-switcher button.is-active {
+  background: #ffffff;
+  color: #06185b;
+}

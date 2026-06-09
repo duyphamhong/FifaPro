@@ -24,7 +24,14 @@
   gap: 24px;
 }
 
-.wc-brand img {
+.wc-brand-logo {
+  align-items: center;
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+}
+
+.wc-brand-logo img {
   background: #ffffff;
   border-radius: 14px;
   height: 72px;
@@ -55,6 +62,11 @@
   display: flex;
   gap: 30px;
   text-align: center;
+}
+
+.wc-topbar-tools {
+  align-items: center;
+  display: flex;
 }
 
 .wc-countdown strong {
@@ -150,9 +162,9 @@
 
 .wc-next-row {
   display: grid;
-  gap: 20px;
-  grid-template-columns: 110px 1fr;
-  margin-bottom: 6px;
+  gap: 10px;
+  grid-template-columns: minmax(0, 1fr) 72px;
+  margin-bottom: 8px;
 }
 
 .wc-team-chip {
@@ -162,6 +174,7 @@
   display: flex;
   gap: 10px;
   min-height: 44px;
+  min-width: 0;
   padding: 0 10px;
 }
 
@@ -188,8 +201,9 @@
   display: flex;
   font-size: 18px;
   font-weight: 900;
+  justify-content: center;
   min-height: 44px;
-  padding: 0 20px;
+  padding: 0 10px;
 }
 
 .wc-next-time {
@@ -1088,6 +1102,10 @@
     gap: 24px;
   }
 
+  .wc-topbar-tools {
+    align-items: flex-start;
+  }
+
   .wc-countdown {
     gap: 18px;
   }
@@ -1104,7 +1122,6 @@
     font-size: 44px;
   }
 
-  .wc-next-row,
   .wc-match-grid,
   .wc-predictions-grid {
     grid-template-columns: 1fr;

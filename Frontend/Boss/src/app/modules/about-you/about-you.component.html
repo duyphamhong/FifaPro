@@ -1,7 +1,10 @@
 <div class="wc-page">
   <header class="wc-topbar">
     <div class="wc-brand">
-      <img src="../../../assets/images/logo.png" alt="FIFA World Cup 2026">
+      <div class="wc-brand-logo">
+        <img src="../../../assets/images/logo.png" alt="FIFA World Cup 2026">
+        <app-language-switcher tone="dark"></app-language-switcher>
+      </div>
       <div>
         <h1>FIFA World Cup 2026<sup>TM</sup></h1>
         <p>11 June - 19 July 2026</p>
@@ -9,22 +12,24 @@
       </div>
     </div>
 
-    <div class="wc-countdown">
-      <div>
-        <strong>{{countdown.days}}</strong>
-        <span>days</span>
-      </div>
-      <div>
-        <strong>{{countdown.hours}}</strong>
-        <span>hours</span>
-      </div>
-      <div>
-        <strong>{{countdown.mins}}</strong>
-        <span>mins</span>
-      </div>
-      <div>
-        <strong>{{countdown.secs}}</strong>
-        <span>secs</span>
+    <div class="wc-topbar-tools">
+      <div class="wc-countdown">
+        <div>
+          <strong>{{countdown.days}}</strong>
+          <span>{{'common.days' | translate}}</span>
+        </div>
+        <div>
+          <strong>{{countdown.hours}}</strong>
+          <span>{{'common.hours' | translate}}</span>
+        </div>
+        <div>
+          <strong>{{countdown.mins}}</strong>
+          <span>{{'common.mins' | translate}}</span>
+        </div>
+        <div>
+          <strong>{{countdown.secs}}</strong>
+          <span>{{'common.secs' | translate}}</span>
+        </div>
       </div>
     </div>
   </header>
@@ -32,34 +37,34 @@
   <main class="wc-main">
     <section class="wc-hero">
       <div class="wc-hero-copy">
-        <p class="wc-eyebrow">Bracket</p>
-        <h2>Challenge</h2>
-        <p class="wc-presented">Presented by ADI PredictStreet</p>
-        <h3><i>"It's not your fault if you're born poor. But if you're still poor after multiple World Cups, that's your
-            fault." - Albert Einstein said.</i></h3>
+        <p class="wc-eyebrow">{{'about.bracket' | translate}}</p>
+        <h2>{{'about.challenge' | translate}}</h2>
+        <p class="wc-presented">{{'about.presented' | translate}}</p>
+        <h3><i>{{'about.quote' | translate}}</i></h3>
         <button class="wc-pill" type="button" [disabled]="!nextMatch" (click)="scrollToFixtures()">
-          Submit your predictions
+          {{'about.submitPredictions' | translate}}
         </button>
       </div>
 
       <div class="wc-group-card">
-        <h3>{{nextMatch?.description || 'Next Match'}}</h3>
+        <h3>{{translateRound(nextMatch?.description) || ('common.nextMatch' | translate)}}</h3>
         <div class="wc-next-row">
           <div class="wc-team-chip">
             <img [src]="getFlagUrl(nextMatch?.team1Flag)" (error)="useDefaultFlag($event)" alt="">
-            <span>{{nextMatch?.team1 || 'TBD'}}</span>
+            <span>{{nextMatch?.team1 || ('common.tbd' | translate)}}</span>
           </div>
           <div class="wc-score-slot">{{nextMatch?.team1ScoredPredicted ?? '-'}}</div>
         </div>
         <div class="wc-next-row">
           <div class="wc-team-chip">
             <img [src]="getFlagUrl(nextMatch?.team2Flag)" (error)="useDefaultFlag($event)" alt="">
-            <span>{{nextMatch?.team2 || 'TBD'}}</span>
+            <span>{{nextMatch?.team2 || ('common.tbd' | translate)}}</span>
           </div>
           <div class="wc-score-slot">{{nextMatch?.team2ScoredPredicted ?? '-'}}</div>
         </div>
         <p class="wc-next-time" *ngIf="nextMatch">
-          {{nextMatch?.kickOfDate | date : "shortTime"}} - {{nextMatch?.kickOfDate | date : "fullDate"}}
+          {{nextMatch?.kickOfDate | date : "shortTime" : undefined : languageService.dateLocale}} -
+          {{nextMatch?.kickOfDate | date : "fullDate" : undefined : languageService.dateLocale}}
         </p>
       </div>
     </section>
@@ -72,43 +77,44 @@
           </button>
           <h2>{{userInfo?.userName || currentUserName}}</h2>
           <div class="wc-stat-line">
-            <span>Total Points</span>
+            <span>{{'common.totalPoints' | translate}}</span>
             <strong>{{userInfo?.currentCoins || 0}}</strong>
           </div>
           <div class="wc-stat-line">
-            <span>Ranking</span>
+            <span>{{'common.ranking' | translate}}</span>
             <strong>{{currentRank || 0}} / {{totalUsers || 0}}</strong>
           </div>
           <button *ngIf="isAdmin" class="wc-action wc-action-success" type="button" (click)="goToAdminDataSync()">
-            <i class="fa fa-refresh fa-fw"></i> Data Sync
+            <i class="fa fa-refresh fa-fw"></i> {{'common.dataSync' | translate}}
           </button>
           <button class="wc-action" type="button" (click)="showPasswordDialog()">
-            <i class="fa fa-key fa-fw"></i> Change Password
+            <i class="fa fa-key fa-fw"></i> {{'common.changePassword' | translate}}
           </button>
           <button class="wc-action" type="button" (click)="logOut()">
-            <i class="fa fa-sign-out fa-fw"></i> LogOut
+            <i class="fa fa-sign-out fa-fw"></i> {{'common.logout' | translate}}
           </button>
         </section>
 
         <section class="wc-panel wc-chat-panel">
           <div class="wc-section-header">
             <div>
-              <p class="wc-eyebrow">Live</p>
-              <h2>Chat Room</h2>
+              <p class="wc-eyebrow">{{'about.live' | translate}}</p>
+              <h2>{{'about.chatRoom' | translate}}</h2>
             </div>
             <div class="wc-chat-tools">
-              <button class="wc-icon-button" type="button" [title]="isChatMuted ? 'Unmute chat sound' : 'Mute chat sound'"
+              <button class="wc-icon-button" type="button"
+                [title]="isChatMuted ? ('common.unmuteChat' | translate) : ('common.muteChat' | translate)"
                 (click)="toggleChatMute()">
                 <i class="fa" [ngClass]="isChatMuted ? 'fa-volume-off' : 'fa-volume-up'"></i>
               </button>
-              <button class="wc-icon-button" type="button" title="Expand chat" (click)="expandChatRoom()">
+              <button class="wc-icon-button" type="button" [title]="'common.expandChat' | translate" (click)="expandChatRoom()">
                 <i class="fa fa-expand"></i>
               </button>
             </div>
           </div>
 
           <div class="wc-chat-online">
-            <strong><i class="fa fa-circle fa-fw"></i> Online {{onlineUsers.length}}</strong>
+            <strong><i class="fa fa-circle fa-fw"></i> {{'common.online' | translate}} {{onlineUsers.length}}</strong>
             <div>
               <button type="button" *ngFor="let user of onlineUsers" (click)="mentionOnlineUser(user)">
                 <img [src]="user?.avatar || 'https://www.w3schools.com/w3css/img_avatar2.png'" alt="">
@@ -118,7 +124,7 @@
           </div>
 
           <div class="wc-chat-messages">
-            <div class="wc-chat-empty" *ngIf="chatData.length === 0">No messages yet.</div>
+            <div class="wc-chat-empty" *ngIf="chatData.length === 0">{{'about.noMessages' | translate}}</div>
             <article class="wc-chat-message" *ngFor="let item of chatData"
               [class.is-current-user]="item?.userName === currentUserName"
               [class.is-system-message]="item?.isSystem">
@@ -133,10 +139,10 @@
           </div>
 
           <div class="wc-chat-compose">
-            <textarea class="wc-input" rows="2" placeholder="Type a message..." [(ngModel)]="chatContent"
+            <textarea class="wc-input" rows="2" [placeholder]="'about.chatPlaceholder' | translate" [(ngModel)]="chatContent"
               (keydown.enter)="onChatEnter($event)"></textarea>
             <button class="wc-action wc-action-success" type="button" (click)="postChat()">
-              <i class="fa fa-paper-plane fa-fw"></i> Send
+              <i class="fa fa-paper-plane fa-fw"></i> {{'common.send' | translate}}
             </button>
           </div>
         </section>
@@ -145,11 +151,11 @@
       <section class="wc-panel wc-ranking">
         <div class="wc-section-header">
           <div>
-            <p class="wc-eyebrow">Leaderboard</p>
-            <h2>{{isFreeRankingChoosen ? 'Free Ranking' : 'VIP Ranking'}}</h2>
+            <p class="wc-eyebrow">{{'about.leaderboard' | translate}}</p>
+            <h2>{{isFreeRankingChoosen ? ('about.freeRanking' | translate) : ('about.vipRanking' | translate)}}</h2>
           </div>
           <button class="wc-mini-button" type="button" (click)="changeRankType()">
-            {{isFreeRankingChoosen ? 'VIP' : 'Free'}}
+            {{isFreeRankingChoosen ? ('about.vip' | translate) : ('about.free' | translate)}}
           </button>
         </div>
 
@@ -159,7 +165,7 @@
               alt="">
             <div class="wc-rank-copy">
               <strong>{{user.name}}</strong>
-              <span>{{user.currentPoint}} pts</span>
+              <span>{{user.currentPoint}} {{'common.pointsShort' | translate}}</span>
             </div>
             <div class="wc-rank-badge">
               <span>{{user.rank}}</span>
@@ -179,7 +185,7 @@
         <section class="wc-panel wc-prophesy" *ngIf="nextMatch">
           <div class="wc-section-header">
             <div>
-              <h2>Prophesy</h2>
+              <h2>{{'about.prophesy' | translate}}</h2>
             </div>
           </div>
           <p>
@@ -191,24 +197,24 @@
         <section class="wc-panel wc-stats" *ngIf="userInfo">
           <div class="wc-section-header">
             <div>
-              <p class="wc-eyebrow">Player</p>
-              <h2>Statistics</h2>
+              <p class="wc-eyebrow">{{'about.player' | translate}}</p>
+              <h2>{{'about.statistics' | translate}}</h2>
             </div>
           </div>
           <div class="wc-stat-line">
-            <span>Predicted</span>
+            <span>{{'about.predicted' | translate}}</span>
             <strong>{{userInfo?.predictedNumber}}</strong>
           </div>
           <div class="wc-stat-line">
-            <span>Exact score</span>
+            <span>{{'about.exactScore' | translate}}</span>
             <strong>{{userInfo?.winnerAndScoredPredicted}}</strong>
           </div>
           <div class="wc-stat-line">
-            <span>Winner</span>
+            <span>{{'common.winner' | translate}}</span>
             <strong>{{userInfo?.winnerPredicted}}</strong>
           </div>
           <div class="wc-stat-line">
-            <span>Missed</span>
+            <span>{{'common.missed' | translate}}</span>
             <strong>{{userInfo?.losePredicted}}</strong>
           </div>
         </section>
@@ -216,16 +222,16 @@
         <section class="wc-panel wc-history-panel">
           <div class="wc-section-header">
             <div>
-              <p class="wc-eyebrow">Recent</p>
-              <h2>History</h2>
+              <p class="wc-eyebrow">{{'about.recent' | translate}}</p>
+              <h2>{{'about.history' | translate}}</h2>
             </div>
             <button class="wc-mini-button" type="button" onclick="document.getElementById('id01').style.display='block'">
-              Detail
+              {{'common.detail' | translate}}
             </button>
           </div>
           <div class="wc-history-mini" *ngFor="let item of histories.slice(0,2)">
             <strong>{{item?.team1}} - {{item?.team2}}</strong>
-            <span>{{item?.kickOfDate | date : "dd/MM/yyyy"}} | {{item?.predictResult || 'Pending'}}</span>
+            <span>{{item?.kickOfDate | date : "dd/MM/yyyy" : undefined : languageService.dateLocale}} | {{item?.predictResult || ('common.pending' | translate)}}</span>
           </div>
         </section>
 
@@ -236,24 +242,24 @@
       <div class="wc-panel">
         <div class="wc-section-header">
           <div>
-            <p class="wc-eyebrow">Tournament</p>
-            <h2>Champion Pick</h2>
+            <p class="wc-eyebrow">{{'about.tournament' | translate}}</p>
+            <h2>{{'about.championPick' | translate}}</h2>
           </div>
         </div>
         <select class="wc-input" [(ngModel)]="champion">
-          <option value="">Select team</option>
+          <option value="">{{'common.selectTeam' | translate}}</option>
           <option *ngFor="let item of teams" [value]="item.name">{{item.name}}</option>
         </select>
         <input class="wc-input" type="number" min="0" [(ngModel)]="samePrediction">
-        <button class="wc-action wc-action-success" type="button" (click)="setChampion()">Bet Now</button>
+        <button class="wc-action wc-action-success" type="button" (click)="setChampion()">{{'common.betNow' | translate}}</button>
       </div>
     </section>
 
     <section id="fixtures" class="wc-fixtures">
       <div class="wc-section-header wc-fixtures-header">
         <div>
-          <p class="wc-eyebrow">World Cup</p>
-          <h2>Fixtures and Results</h2>
+          <p class="wc-eyebrow">{{'about.worldCup' | translate}}</p>
+          <h2>{{'about.fixturesResults' | translate}}</h2>
         </div>
       </div>
 
@@ -261,8 +267,8 @@
         <section class="wc-match-group" *ngFor="let group of matchGroups">
           <button class="wc-match-group-header" type="button" (click)="toggleMatchGroup(group)">
             <div>
-              <h3>{{group.description}}</h3>
-              <span>{{group.matches.length}} matches</span>
+              <h3>{{translateRound(group.description)}}</h3>
+              <span>{{group.matches.length}} {{'common.matches' | translate}}</span>
             </div>
             <i class="fa" [ngClass]="group.isExpanded ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
           </button>
@@ -271,8 +277,8 @@
             <article class="wc-match-card" *ngFor="let match of group.matches" [class.is-live]="match.isHappening"
               [class.is-passed]="match.isPassed">
               <header>
-                <span>{{match?.description || 'Match'}}</span>
-                <strong>{{match?.kickOfDate | date : "shortTime"}}</strong>
+                <span>{{translateRound(match?.description) || ('common.match' | translate)}}</span>
+                <strong>{{match?.kickOfDate | date : "shortTime" : undefined : languageService.dateLocale}}</strong>
               </header>
 
               <div class="wc-match-teams">
@@ -280,7 +286,7 @@
                   <img [src]="getFlagUrl(match?.team1Flag)" (error)="useDefaultFlag($event)" alt="">
                   <strong>{{match?.team1}}</strong>
                 </div>
-                <span>{{match?.team1Scored ?? 'TBD'}}</span>
+                <span>{{match?.team1Scored ?? ('common.tbd' | translate)}}</span>
               </div>
 
               <div class="wc-match-teams">
@@ -288,10 +294,10 @@
                   <img [src]="getFlagUrl(match?.team2Flag)" (error)="useDefaultFlag($event)" alt="">
                   <strong>{{match?.team2}}</strong>
                 </div>
-                <span>{{match?.team2Scored ?? 'TBD'}}</span>
+                <span>{{match?.team2Scored ?? ('common.tbd' | translate)}}</span>
               </div>
 
-              <p class="wc-match-date">{{match?.kickOfDate | date : "fullDate"}}</p>
+              <p class="wc-match-date">{{match?.kickOfDate | date : "fullDate" : undefined : languageService.dateLocale}}</p>
 
               <div class="wc-predict-view" *ngIf="!match?.isEditing">
                 <div>
@@ -317,12 +323,12 @@
 
               <button *ngIf="!match?.isPassed && !match?.isHappening" class="wc-action" type="button"
                 (click)="onPredictClick(match)">
-                {{match?.isEditing ? 'Submit' : 'Bet Now'}}
+                {{match?.isEditing ? ('common.submit' | translate) : ('common.betNow' | translate)}}
               </button>
 
               <button *ngIf="match?.isHappening || match?.isPassed" class="wc-action wc-action-success" type="button"
                 (click)="getMatchPredicts(match.id)">
-                Show Predictions
+                {{'about.showPredictions' | translate}}
               </button>
             </article>
           </div>
@@ -336,14 +342,14 @@
   <div class="w3-modal-content wc-modal">
     <header>
       <span onclick="document.getElementById('id01').style.display='none'">&times;</span>
-      <h2>History</h2>
+      <h2>{{'about.history' | translate}}</h2>
     </header>
     <div class="wc-modal-body">
       <div class="wc-history-row" *ngFor="let item of histories">
         <strong>{{item?.team1}} - {{item?.team2}}</strong>
-        <span>Kicked: {{item?.kickOfDate | date : "dd/MM/yyyy"}}</span>
-        <span>Bet: {{item?.predictedDate | date : "dd/MM/yyyy"}}</span>
-        <em>{{item?.predictResult || 'Pending'}}</em>
+        <span>{{'common.kicked' | translate}}: {{item?.kickOfDate | date : "dd/MM/yyyy" : undefined : languageService.dateLocale}}</span>
+        <span>{{'common.bet' | translate}}: {{item?.predictedDate | date : "dd/MM/yyyy" : undefined : languageService.dateLocale}}</span>
+        <em>{{item?.predictResult || ('common.pending' | translate)}}</em>
       </div>
     </div>
   </div>
@@ -352,22 +358,23 @@
 <div class="wc-chat-expanded" *ngIf="isChatExpanded">
   <header>
     <div>
-      <p class="wc-eyebrow">Live</p>
-      <h2>Chat Room</h2>
+      <p class="wc-eyebrow">{{'about.live' | translate}}</p>
+      <h2>{{'about.chatRoom' | translate}}</h2>
     </div>
     <div class="wc-chat-tools">
-      <button class="wc-icon-button" type="button" [title]="isChatMuted ? 'Unmute chat sound' : 'Mute chat sound'"
+      <button class="wc-icon-button" type="button"
+        [title]="isChatMuted ? ('common.unmuteChat' | translate) : ('common.muteChat' | translate)"
         (click)="toggleChatMute()">
         <i class="fa" [ngClass]="isChatMuted ? 'fa-volume-off' : 'fa-volume-up'"></i>
       </button>
-      <button class="wc-icon-button" type="button" title="Collapse chat" (click)="collapseChatRoom()">
+      <button class="wc-icon-button" type="button" [title]="'common.collapseChat' | translate" (click)="collapseChatRoom()">
         <i class="fa fa-compress"></i>
       </button>
     </div>
   </header>
 
   <div class="wc-chat-online">
-    <strong><i class="fa fa-circle fa-fw"></i> Online {{onlineUsers.length}}</strong>
+    <strong><i class="fa fa-circle fa-fw"></i> {{'common.online' | translate}} {{onlineUsers.length}}</strong>
     <div>
       <button type="button" *ngFor="let user of onlineUsers" (click)="mentionOnlineUser(user)">
         <img [src]="user?.avatar || 'https://www.w3schools.com/w3css/img_avatar2.png'" alt="">
@@ -377,7 +384,7 @@
   </div>
 
   <div class="wc-chat-messages">
-    <div class="wc-chat-empty" *ngIf="chatData.length === 0">No messages yet.</div>
+    <div class="wc-chat-empty" *ngIf="chatData.length === 0">{{'about.noMessages' | translate}}</div>
     <article class="wc-chat-message" *ngFor="let item of chatData"
       [class.is-current-user]="item?.userName === currentUserName"
       [class.is-system-message]="item?.isSystem">
@@ -392,10 +399,10 @@
   </div>
 
   <div class="wc-chat-compose">
-    <textarea class="wc-input" rows="2" placeholder="Type a message..." [(ngModel)]="chatContent"
+    <textarea class="wc-input" rows="2" [placeholder]="'about.chatPlaceholder' | translate" [(ngModel)]="chatContent"
       (keydown.enter)="onChatEnter($event)"></textarea>
     <button class="wc-action wc-action-success" type="button" (click)="postChat()">
-      <i class="fa fa-paper-plane fa-fw"></i> Send
+      <i class="fa fa-paper-plane fa-fw"></i> {{'common.send' | translate}}
     </button>
   </div>
 </div>
@@ -404,13 +411,13 @@
   <div class="w3-modal-content wc-modal wc-password-modal">
     <header>
       <span (click)="hidePasswordDialog()">&times;</span>
-      <h2>Change Password</h2>
+      <h2>{{'common.changePassword' | translate}}</h2>
     </header>
     <div class="wc-modal-body">
-      <input class="wc-input" type="password" placeholder="Old Password" [(ngModel)]="oldPass">
-      <input class="wc-input" type="password" placeholder="New Password" [(ngModel)]="newPass">
-      <input class="wc-input" type="password" placeholder="Confirm Password" [(ngModel)]="confirmPass">
-      <button class="wc-action" type="button" (click)="changePassword()">Submit</button>
+      <input class="wc-input" type="password" [placeholder]="'common.oldPassword' | translate" [(ngModel)]="oldPass">
+      <input class="wc-input" type="password" [placeholder]="'common.newPassword' | translate" [(ngModel)]="newPass">
+      <input class="wc-input" type="password" [placeholder]="'common.confirmPassword' | translate" [(ngModel)]="confirmPass">
+      <button class="wc-action" type="button" (click)="changePassword()">{{'common.submit' | translate}}</button>
     </div>
   </div>
 </div>
@@ -419,14 +426,14 @@
   <div class="w3-modal-content wc-modal wc-password-modal">
     <header>
       <span (click)="hideAvatarDialog()">&times;</span>
-      <h2>Change Avatar</h2>
+      <h2>{{'common.changeAvatar' | translate}}</h2>
     </header>
     <div class="wc-modal-body">
-      <input class="wc-input" type="url" placeholder="Image URL" [(ngModel)]="avatarUrl">
+      <input class="wc-input" type="url" [placeholder]="'common.imageUrl' | translate" [(ngModel)]="avatarUrl">
       <div class="wc-avatar-preview" *ngIf="avatarUrl">
         <img [src]="avatarUrl" alt="">
       </div>
-      <button class="wc-action wc-action-success" type="button" (click)="updateAvatar()">Save Avatar</button>
+      <button class="wc-action wc-action-success" type="button" (click)="updateAvatar()">{{'common.saveAvatar' | translate}}</button>
     </div>
   </div>
 </div>

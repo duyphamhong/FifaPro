@@ -1,3 +1,5 @@
+import { registerLocaleData } from '@angular/common';
+import localeVi from '@angular/common/locales/vi';
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA, APP_INITIALIZER } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
@@ -14,6 +16,8 @@ import { ToastrModule  } from 'ngx-toastr';
 import { CommingSoonComponent } from './modules/comming-soon/comming-soon.component';
 import { AboutYouComponent } from './modules/about-you/about-you.component';
 import { AdminDataSyncComponent } from './modules/admin-data-sync/admin-data-sync.component';
+
+registerLocaleData(localeVi);
 
 @NgModule({
   declarations: [

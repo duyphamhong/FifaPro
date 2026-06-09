@@ -3,9 +3,14 @@ import { CommonModule } from '@angular/common';
 import { AngularMaterialModule } from './angular-material/angular-material.module';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { LanguageSwitcherComponent } from './i18n/language-switcher.component';
+import { TranslatePipe } from './i18n/translate.pipe';
 
 @NgModule({
-  declarations: [],
+  declarations: [
+    LanguageSwitcherComponent,
+    TranslatePipe
+  ],
   imports: [
     AngularMaterialModule,
     CommonModule,
@@ -17,7 +22,9 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     AngularMaterialModule,
     //FlexLayoutModule,
     ReactiveFormsModule,
-    FormsModule
+    FormsModule,
+    LanguageSwitcherComponent,
+    TranslatePipe
   ],
 })
 export class SharedModule { }

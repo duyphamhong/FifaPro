@@ -2,10 +2,11 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import * as signalR from '@microsoft/signalr';
 import { ToastrService } from 'ngx-toastr';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Subscription } from 'rxjs';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LocalStorageService } from 'src/app/core/services/bases/local-storage.service';
 import { DataServiceService } from 'src/app/core/services/data-service.service';
+import { LanguageService } from 'src/app/shared/i18n/language.service';
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -59,6 +60,7 @@ export class AboutYouComponent implements OnInit, OnDestroy {
   isShowPasswordPopup: boolean;
   isShowAvatarPopup: boolean;
   private hubConnection: signalR.HubConnection;
+  private languageSubscription: Subscription | null = null;
   countdown = {
     days: '00',
     hours: '00',
@@ -71,7 +73,8 @@ export class AboutYouComponent implements OnInit, OnDestroy {
     private storage: LocalStorageService,
     private authenService: AuthService,
     private route: Router,
-    private toasrt: ToastrService) {
+    private toasrt: ToastrService,
+    public languageService: LanguageService) {
     this.matches = [];
     this.matchGroups = [];
     this.currentUserName = this.storage.getUserName();
@@ -115,6 +118,11 @@ export class AboutYouComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.languageSubscription = this.languageService.language$.subscribe(() => {
+      if (this.nextMatch) {
+        this.generateProphesy();
+      }
+    });
     this.loadInfo();
     this.startCountdown();
     this.startChatConnection();
@@ -127,6 +135,10 @@ export class AboutYouComponent implements OnInit, OnDestroy {
 
     if (this.hubConnection) {
       this.hubConnection.stop();
+    }
+
+    if (this.languageSubscription) {
+      this.languageSubscription.unsubscribe();
     }
   }
 
@@ -164,7 +176,7 @@ export class AboutYouComponent implements OnInit, OnDestroy {
       return;
     } else {
       if (match.team1ScoredPredicted == null || match.team2ScoredPredicted == null) {
-        this.toasrt.error("Invalid scores!");
+        this.toasrt.error(this.languageService.translate('toast.invalidScores'));
         return;
       }
 
@@ -185,7 +197,7 @@ export class AboutYouComponent implements OnInit, OnDestroy {
 
   changePassword() {
     if (this.oldPass == '' || this.newPass == '' || this.confirmPass == '') {
-      this.toasrt.error("Invalid data input");
+      this.toasrt.error(this.languageService.translate('toast.invalidDataInput'));
       return;
     } else {
       let model = {
@@ -202,7 +214,7 @@ export class AboutYouComponent implements OnInit, OnDestroy {
 
   updateAvatar() {
     if (!this.avatarUrl || this.avatarUrl.trim() == '') {
-      this.toasrt.error("Invalid avatar url");
+      this.toasrt.error(this.languageService.translate('toast.invalidAvatarUrl'));
       return;
     }
 
@@ -217,7 +229,7 @@ export class AboutYouComponent implements OnInit, OnDestroy {
 
   setChampion() {
     if (this.champion == '') {
-      this.toasrt.error("Invalid data input");
+      this.toasrt.error(this.languageService.translate('toast.invalidDataInput'));
       return;
     } else {
       let model = {
@@ -315,14 +327,29 @@ export class AboutYouComponent implements OnInit, OnDestroy {
     group.isExpanded = !group.isExpanded;
   }
 
+  translateRound(description: string): string {
+    if (!description) {
+      return '';
+    }
+
+    const roundKey = this.getRoundTranslationKey(description);
+    return roundKey ? this.languageService.translate(roundKey, undefined, description) : description;
+  }
+
   postChat() {
     if (!this.chatContent || this.chatContent.trim() == '') {
-      this.toasrt.error('Message is required', 'Chat Room');
+      this.toasrt.error(
+        this.languageService.translate('toast.messageRequired'),
+        this.languageService.translate('toast.chatRoom')
+      );
       return;
     }
 
     if (!this.nextMatch?.id) {
-      this.toasrt.error('No active match room is available', 'Chat Room');
+      this.toasrt.error(
+        this.languageService.translate('toast.noActiveMatch'),
+        this.languageService.translate('toast.chatRoom')
+      );
       return;
     }
 
@@ -363,8 +390,8 @@ export class AboutYouComponent implements OnInit, OnDestroy {
   }
 
   generateProphesy() {
-    const team1 = this.nextMatch?.team1 || 'Team A';
-    const team2 = this.nextMatch?.team2 || 'Team B';
+    const team1 = this.nextMatch?.team1 || this.languageService.translate('common.tbd');
+    const team2 = this.nextMatch?.team2 || this.languageService.translate('common.tbd');
     const winner = Math.random() > 0.5 ? team1 : team2;
     const loser = winner === team1 ? team2 : team1;
     const winnerScore = this.randomScore(1, 5);
@@ -372,7 +399,10 @@ export class AboutYouComponent implements OnInit, OnDestroy {
     const score = winner === team1
       ? `${team1} ${winnerScore}-${loserScore} ${team2}`
       : `${team1} ${loserScore}-${winnerScore} ${team2}`;
-    const template = this.prophesyTemplates[Math.floor(Math.random() * this.prophesyTemplates.length)];
+    const prophesyTemplates = this.languageService.currentLanguage === 'vi'
+      ? this.prophesyTemplatesVi
+      : this.prophesyTemplates;
+    const template = prophesyTemplates[Math.floor(Math.random() * prophesyTemplates.length)];
     const author = this.prophesyAuthors[Math.floor(Math.random() * this.prophesyAuthors.length)];
     const message = template
       .replace(/{winner}/g, winner)
@@ -496,7 +526,7 @@ export class AboutYouComponent implements OnInit, OnDestroy {
 
   private startChatConnection(): void {
     this.hubConnection.start()
-      .catch(err => this.toasrt.error('Error while starting chat connection: ' + err));
+      .catch(err => this.toasrt.error(this.languageService.translate('toast.chatConnectionError', { error: err })));
 
     this.hubConnection.on('broadcastchatdata', (data) => {
       if (!this.isCurrentChatRoom(data)) {
@@ -554,11 +584,32 @@ export class AboutYouComponent implements OnInit, OnDestroy {
 
     nextUsers
       .filter(x => !previousNames.includes(x.userName) && x.userName !== this.currentUserName)
-      .forEach(x => this.addSystemChatMessage(`${x.userName} has just online.`));
+      .forEach(x => this.addSystemChatMessage(this.languageService.translate('chat.userOnline', { userName: x.userName })));
 
     previousUsers
       .filter(x => !nextNames.includes(x.userName) && x.userName !== this.currentUserName)
-      .forEach(x => this.addSystemChatMessage(`${x.userName} has just offline.`));
+      .forEach(x => this.addSystemChatMessage(this.languageService.translate('chat.userOffline', { userName: x.userName })));
+  }
+
+  private getRoundTranslationKey(description: string): string {
+    switch (description) {
+      case 'Group stage':
+        return 'round.groupStage';
+      case 'Round of 32':
+        return 'round.roundOf32';
+      case 'Round of 16':
+        return 'round.roundOf16';
+      case 'Quarter-finals':
+        return 'round.quarterFinals';
+      case 'Semi-finals':
+        return 'round.semiFinals';
+      case 'Final':
+        return 'round.final';
+      case 'Other':
+        return 'round.other';
+      default:
+        return '';
+    }
   }
 
   private addSystemChatMessage(content: string): void {
@@ -622,6 +673,24 @@ export class AboutYouComponent implements OnInit, OnDestroy {
     'If this prediction fails, blame gravity. If it wins, praise {winner}. {score}.',
     'No spreadsheet, no scouting report, just raw tournament chaos: {score}.',
     '{winner} take this one, {loser} learn character development, everybody gets content. {score}.'
+  ];
+
+  private readonly prophesyTemplatesVi: string[] = [
+    '{winner} đang sáng cửa hơn ở trận này. Đừng nghĩ nhiều quá, dự đoán của tôi là {score}.',
+    'Bộ phận cảm tính đã nộp báo cáo: {winner} vượt qua {loser}. Phiếu gợi ý: {score}.',
+    '{loser} có thể nhập cuộc đầy hy vọng, nhưng {winner} trông giống đội đang cầm kịch bản. {score}.',
+    'Tôi mô phỏng trận này trong đầu đúng bốn giây. Rất khoa học. Kết quả là {score}.',
+    '{winner} có vẻ mượn được sự tự tin từ tương lai. {loser} nên hơi lo một chút. {score}.',
+    'Dữ liệu chưa đủ, niềm tin thì hơi quá tay, nhưng lựa chọn vẫn là {winner}. {score}.',
+    '{loser} có cơ hội trên lý thuyết. Linh cảm của tôi vẫn chỉ về {winner}. {score}.',
+    'Nếu bóng đá thích drama thì mọi thứ có thể đảo chiều, nhưng hôm nay tôi chọn {winner}. {score}.',
+    'Bảng tính bí ẩn vừa xuất hiện và xếp {winner} ở vị trí đáng tin nhất. {score}.',
+    '{winner} sẽ ghi bàn, ăn mừng lớn, rồi khiến {loser} phải suy nghĩ lại kế hoạch. {score}.',
+    'Dự đoán này không được chuyên gia nào bảo chứng, nhưng nghe vẫn rất tự tin: {score}.',
+    '{winner} mang năng lượng của đội đã chuẩn bị kỹ. {loser} mang năng lượng của đội hy vọng mọi thứ ổn. {score}.',
+    'Trận này hoặc là thiên tài, hoặc là hài kịch. Dù sao lời tiên tri vẫn nói {score}.',
+    'Lựa chọn an toàn nhất không bao giờ thật sự an toàn, nên tôi mạnh dạn gọi {score}.',
+    '{winner} thắng trận này, {loser} nhận thêm bài học, còn chúng ta có chuyện để nói. {score}.'
   ];
 
   private readonly prophesyAuthors: string[] = [

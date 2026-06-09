@@ -88,8 +88,16 @@
 .brand-row {
   align-items: center;
   display: flex;
-  gap: 14px;
+  gap: 16px;
+  justify-content: space-between;
   margin-bottom: 26px;
+}
+
+.brand-identity {
+  align-items: center;
+  display: flex;
+  gap: 14px;
+  min-width: 0;
 }
 
 .brand-mark {
@@ -230,5 +238,10 @@
 
   .auth-panel {
     padding: 22px;
+  }
+
+  .brand-row {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }

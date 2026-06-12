@@ -26,7 +26,7 @@ namespace BehindAGirl.Services.Implements
             {
                 //Change the list depending on the group stage of the tournament
                 var groupsName = new List<string>() { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L" };
-                var url = "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup";
+                var url = WorldCupMatchParser.TournamentUrl;
                 var web = new HtmlWeb();
                 var htmlDocument = await web.LoadFromWebAsync(url);
 
@@ -101,7 +101,7 @@ namespace BehindAGirl.Services.Implements
         {
             try
             {
-                var url = "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup";
+                var url = WorldCupMatchParser.TournamentUrl;
                 var web = new HtmlWeb();
                 var htmlDocument = await web.LoadFromWebAsync(url);
 
@@ -114,30 +114,24 @@ namespace BehindAGirl.Services.Implements
                     var match = new Match();
 
                     match.Id = Guid.NewGuid();
-                    match.Name = div.GetChildNode("th", "class", "fscore", Common.Constants.CompareModeEnum.Equal)
-                                .ChildNodes.FirstOrDefault().InnerText.TrimInnerText();
-                    match.DetailUrl = GetMatchDetailUrl(div);
+                    match.Name = WorldCupMatchParser.GetScoreText(div);
+                    match.DetailUrl = WorldCupMatchParser.GetMatchDetailUrl(div);
                     match.KickOfDate = GetUtcKickOffDate(div);
                     //ImageUrl = div.GetChildNode("meta", "itemprop", "image", Common.Constants.CompareModeEnum.Equal).GetAttributeValue("content","").TrimInnerText(),
                     // Description = div.GetChildNode("meta", "itemprop", "description", Common.Constants.CompareModeEnum.Equal).GetAttributeValue("content","").TrimInnerText(),
-                    match.Stadium = div.GetChildNode("div", "itemprop", "location", Common.Constants.CompareModeEnum.Equal).InnerText.TrimInnerText();
-                    match.Team1 = div.GetChildNode("th", "class", "fhome", Common.Constants.CompareModeEnum.Equal).InnerText.TrimInnerText();
-                    match.Team2 = div.GetChildNode("th", "class", "faway", Common.Constants.CompareModeEnum.Equal).InnerText.TrimInnerText();
+                    match.Stadium = WorldCupMatchParser.GetStadium(div);
+                    match.Team1 = WorldCupMatchParser.GetHomeTeam(div);
+                    match.Team2 = WorldCupMatchParser.GetAwayTeam(div);
 
                     /*** FOR WORLDCUP ***/
 
-                    if (match.Name.IndexOf('–') > 0)
+                    if (WorldCupMatchParser.TryGetScore(div, out var team1Score, out var team2Score))
                     {
-                        var scored = match.Name.Split("–");
-                        match.Team1Scored = scored[0].ToIntNullable();
-                        match.Team2Scored = scored[1].ToIntNullable();
+                        match.Team1Scored = team1Score;
+                        match.Team2Scored = team2Score;
                         match.Winner = (match.Team1Scored == null || match.Team1Scored == match.Team2Scored) ? null : match.Team1Scored > match.Team2Scored ? match.Team1 : match.Team2;
                         match.Draw = match.Team1Scored != null && match.Team1Scored == match.Team2Scored ? true : null;
                     }
-
-                    match.Team1 = match.Team1 == "Czechia" ? "Czech Republic" : match.Team1;
-                    match.Team2 = match.Team2 == "Czechia" ? "Czech Republic" : match.Team2;
-
 
                     /** For EURO **/
 
@@ -221,23 +215,6 @@ namespace BehindAGirl.Services.Implements
             }
         }
 
-        private static string GetMatchDetailUrl(HtmlNode matchNode)
-        {
-            var scoreNode = matchNode.GetChildNode("th", "class", "fscore", Common.Constants.CompareModeEnum.Equal);
-            var reportUrl = scoreNode?.Descendants("a")
-                .Select(node => node.GetAttributeValue("href", "").TrimInnerText())
-                .FirstOrDefault(href => !string.IsNullOrWhiteSpace(href));
-
-            if (string.IsNullOrWhiteSpace(reportUrl))
-            {
-                return string.Empty;
-            }
-
-            return reportUrl.StartsWith("http", StringComparison.OrdinalIgnoreCase)
-                ? reportUrl
-                : "https://en.wikipedia.org" + reportUrl;
-        }
-
         private static DateTime GetUtcKickOffDate(HtmlNode matchNode)
         {
             var date = matchNode
@@ -260,7 +237,7 @@ namespace BehindAGirl.Services.Implements
 
         private static string GetKickOffTime(HtmlNode timeNode)
         {
-            var timeText = NormalizeWikipediaText(timeNode?.InnerText);
+            var timeText = WorldCupMatchParser.NormalizeWikipediaText(timeNode?.InnerText);
             var utcIndex = timeText.IndexOf("UTC", StringComparison.OrdinalIgnoreCase);
             if (utcIndex >= 0)
             {
@@ -286,7 +263,7 @@ namespace BehindAGirl.Services.Implements
                 offsetText = timeNode?.InnerText;
             }
 
-            offsetText = NormalizeWikipediaText(offsetText);
+            offsetText = WorldCupMatchParser.NormalizeWikipediaText(offsetText);
             var match = System.Text.RegularExpressions.Regex.Match(offsetText, @"UTC\s*([+\-−])\s*(\d{1,2})(?::(\d{2}))?");
             if (!match.Success)
             {
@@ -300,16 +277,6 @@ namespace BehindAGirl.Services.Implements
                 : 0;
 
             return new TimeSpan(sign * hours, sign * minutes, 0);
-        }
-
-        private static string NormalizeWikipediaText(string text)
-        {
-            return (text ?? string.Empty)
-                .Replace('\u00A0', ' ')
-                .Replace("&#160;", " ")
-                .Replace("&#160", " ")
-                .Replace("−", "-")
-                .Trim();
         }
     }
 }

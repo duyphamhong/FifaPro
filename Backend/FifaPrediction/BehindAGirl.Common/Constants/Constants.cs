@@ -20,6 +20,7 @@ namespace BehindAGirl.Common.Constants
 		public static Dictionary<string, List<int>> PointConverter = new Dictionary<string, List<int>>()
 		{
 			{ GroupStage, new List<int>{0,5,10} },
+			{ RoundOf32, new List<int>{0,10,20} },
 			{ RoundOf16, new List<int>{0,10,20} },
 			{ QuaterFinal, new List<int>{0,10,20} },
 			{ Semi, new List<int>{0,15,30} },

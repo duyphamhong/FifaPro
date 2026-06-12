@@ -123,7 +123,10 @@ namespace BehindAGirl.Services.Implements
 
 			//Crawl data
 			var web = new HtmlWeb();
-			var detailDocument = await web.LoadFromWebAsync(previousMatch.DetailUrl);
+			var detailUrl = string.IsNullOrWhiteSpace(previousMatch.DetailUrl)
+				? WorldCupMatchParser.TournamentUrl
+				: previousMatch.DetailUrl;
+			var detailDocument = await web.LoadFromWebAsync(detailUrl);
 
 			/**Euro**/
 			//var scoreNode = detailDocument.DocumentNode.GetChildNode("div", "class", "match-row--flex js-match-row", Common.Constants.CompareModeEnum.Contains);
@@ -136,19 +139,15 @@ namespace BehindAGirl.Services.Implements
 
 			foreach (var div in divs)
 			{
-				var score = div.GetChildNode("th", "class", "fscore", Common.Constants.CompareModeEnum.Equal)
-								.ChildNodes.FirstOrDefault().InnerText.TrimInnerText();
-				var detailUrl = div.GetChildNode("tr", "class", "fgoals", Common.Constants.CompareModeEnum.Equal)
-								.GetChildNode("a", "class", "external text", Common.Constants.CompareModeEnum.Equal).GetAttributeValue("href", "").TrimInnerText();
-				var stadium = div.GetChildNode("div", "itemprop", "location", Common.Constants.CompareModeEnum.Equal).InnerText.TrimInnerText();
-				var team1 = div.GetChildNode("th", "class", "fhome", Common.Constants.CompareModeEnum.Equal).InnerText.TrimInnerText();
-				var team2 = div.GetChildNode("th", "class", "faway", Common.Constants.CompareModeEnum.Equal).InnerText.TrimInnerText();
+				var team1 = WorldCupMatchParser.GetHomeTeam(div);
+				var team2 = WorldCupMatchParser.GetAwayTeam(div);
+				var previousTeam1 = WorldCupMatchParser.NormalizeTeamName(previousMatch.Team1);
+				var previousTeam2 = WorldCupMatchParser.NormalizeTeamName(previousMatch.Team2);
 
-				if (previousMatch.Team1 == team1 && previousMatch.Team2 == team2)
+				if (previousTeam1 == team1 && previousTeam2 == team2 && WorldCupMatchParser.TryGetScore(div, out var team1Score, out var team2Score))
 				{
-					var scored = score.IndexOf(" ") > 0 ? score.Split(" ")[0].Split("–") : score.Split("–");
-					previousMatch.Team1Scored = scored[0].ToIntNullable();
-					previousMatch.Team2Scored = scored[1].ToIntNullable();
+					previousMatch.Team1Scored = team1Score;
+					previousMatch.Team2Scored = team2Score;
 
 					previousMatch.Winner = (previousMatch.Team1Scored == null || previousMatch.Team1Scored == previousMatch.Team2Scored) ? null : previousMatch.Team1Scored > previousMatch.Team2Scored ? previousMatch.Team1 : previousMatch.Team2;
 					previousMatch.Draw = previousMatch.Team1Scored != null && previousMatch.Team1Scored == previousMatch.Team2Scored ? true : null;

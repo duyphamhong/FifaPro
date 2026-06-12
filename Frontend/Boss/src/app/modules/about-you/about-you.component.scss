@@ -614,6 +614,18 @@
   gap: 14px;
 }
 
+.wc-chat-panel.has-muted-unread,
+.wc-chat-expanded.has-muted-unread {
+  background: #fff9dc;
+  border-color: #f2c94c;
+  box-shadow: 0 18px 38px rgba(189, 137, 0, 0.2);
+}
+
+.wc-chat-panel.is-shaking-notification,
+.wc-chat-expanded.is-shaking-notification {
+  animation: chatNotificationShake 0.45s ease-in-out infinite;
+}
+
 .wc-chat-tools {
   display: flex;
   gap: 8px;
@@ -713,7 +725,38 @@
 }
 
 .wc-chat-message.is-current-user div {
-  background: #eef9f6;
+  background: #3150ff;
+  color: #ffffff;
+}
+
+.wc-chat-message.is-current-user {
+  grid-template-columns: minmax(0, 86%);
+  justify-content: end;
+}
+
+.wc-chat-message.is-current-user img {
+  display: none;
+}
+
+.wc-chat-message.is-current-user div {
+  text-align: left;
+}
+
+.wc-chat-message.is-current-user strong,
+.wc-chat-message.is-current-user span,
+.wc-chat-message.is-current-user p {
+  color: #ffffff;
+}
+
+.wc-chat-message.is-current-user span {
+  opacity: 0.78;
+}
+
+.wc-chat-message.is-unread-message div {
+  animation: unreadMessageShake 0.45s ease-in-out infinite;
+  background: #fff1b8;
+  border: 1px solid #efc240;
+  box-shadow: 0 8px 18px rgba(189, 137, 0, 0.18);
 }
 
 .wc-chat-message strong {
@@ -878,7 +921,9 @@
 }
 
 .wc-match-card.is-live {
+  animation: happeningMatchShake 0.72s ease-in-out infinite;
   border-color: #00a67d;
+  box-shadow: 0 16px 34px rgba(0, 166, 125, 0.22);
 }
 
 .wc-match-card.is-passed {
@@ -1222,6 +1267,63 @@
   100% {
     opacity: 1;
     transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes chatNotificationShake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-5px);
+  }
+  40% {
+    transform: translateX(5px);
+  }
+  60% {
+    transform: translateX(-4px);
+  }
+  80% {
+    transform: translateX(4px);
+  }
+}
+
+@keyframes unreadMessageShake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-4px);
+  }
+  40% {
+    transform: translateX(4px);
+  }
+  60% {
+    transform: translateX(-3px);
+  }
+  80% {
+    transform: translateX(3px);
+  }
+}
+
+@keyframes happeningMatchShake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-3px);
+  }
+  40% {
+    transform: translateX(3px);
+  }
+  60% {
+    transform: translateX(-2px);
+  }
+  80% {
+    transform: translateX(2px);
   }
 }
 

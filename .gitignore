@@ -24,3 +24,4 @@ Frontend/Boss/coverage/
 # Visual Studio publish/service artifacts
 **/Properties/PublishProfiles/
 **/Properties/ServiceDependencies/
+Backend/FifaPrediction/BehindAGirl/ChatData/*.json

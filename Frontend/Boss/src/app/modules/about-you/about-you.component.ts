@@ -49,12 +49,15 @@ export class AboutYouComponent implements OnInit, OnDestroy {
   prophesyAuthor: string;
   isChatMuted: boolean;
   isChatExpanded: boolean;
+  hasMutedUnreadChat: boolean;
+  isChatNotificationShaking: boolean;
   hasReceivedOnlineUsers: boolean;
   isFreeRankingChoosen: boolean = true;
   isAdmin: boolean = false;
 
   baseUrl = '';
   defaultFlagUrl = 'assets/images/default-flag.svg';
+  private readonly matchDurationInMinutes = 120;
 
   isShowPredictPopup: boolean;
   isShowPasswordPopup: boolean;
@@ -63,6 +66,9 @@ export class AboutYouComponent implements OnInit, OnDestroy {
   private hubConnection: signalR.HubConnection;
   private languageSubscription: Subscription | null = null;
   private sponsorDropTimeout: any;
+  private unreadHighlightTimeout: any;
+  private chatShakeStartTimeout: any;
+  private chatShakeTimeout: any;
   countdown = {
     days: '00',
     hours: '00',
@@ -92,6 +98,8 @@ export class AboutYouComponent implements OnInit, OnDestroy {
     this.prophesyAuthor = '';
     this.isChatMuted = false;
     this.isChatExpanded = false;
+    this.hasMutedUnreadChat = false;
+    this.isChatNotificationShaking = false;
     this.hasReceivedOnlineUsers = false;
     this.histories = [];
     this.vipRanking = [];
@@ -140,6 +148,8 @@ export class AboutYouComponent implements OnInit, OnDestroy {
     if (this.sponsorDropTimeout) {
       clearTimeout(this.sponsorDropTimeout);
     }
+
+    this.clearChatNotificationTimers();
 
     if (this.hubConnection) {
       this.hubConnection.stop();
@@ -345,6 +355,8 @@ export class AboutYouComponent implements OnInit, OnDestroy {
   }
 
   postChat() {
+    this.clearChatNotification();
+
     if (!this.chatContent || this.chatContent.trim() == '') {
       this.toasrt.error(
         this.languageService.translate('toast.messageRequired'),
@@ -370,6 +382,7 @@ export class AboutYouComponent implements OnInit, OnDestroy {
 
     this.dataService.sendChats(chatModel).subscribe(() => {
       this.chatContent = '';
+      this.clearChatNotification();
     });
   }
 
@@ -385,10 +398,14 @@ export class AboutYouComponent implements OnInit, OnDestroy {
 
   toggleChatMute() {
     this.isChatMuted = !this.isChatMuted;
+    if (!this.isChatMuted) {
+      this.clearChatNotification();
+    }
   }
 
   expandChatRoom() {
     this.isChatExpanded = true;
+    this.clearChatNotification();
     this.scrollChatToBottom();
   }
 
@@ -432,6 +449,13 @@ export class AboutYouComponent implements OnInit, OnDestroy {
     this.chatContent = this.chatContent
       ? `${this.chatContent.trim()} ${mention} `
       : `${mention} `;
+  }
+
+  clearChatNotification() {
+    this.hasMutedUnreadChat = false;
+    this.isChatNotificationShaking = false;
+    this.clearUnreadMessages();
+    this.clearChatNotificationTimers();
   }
 
   showPasswordDialog() {
@@ -482,6 +506,8 @@ export class AboutYouComponent implements OnInit, OnDestroy {
   }
 
   private prepareMatchGroups(): void {
+    this.updateMatchStatuses();
+
     const orderedDescriptions = [
       'Group stage',
       'Round of 32',
@@ -530,6 +556,8 @@ export class AboutYouComponent implements OnInit, OnDestroy {
   }
 
   private updateCountdown(): void {
+    this.updateMatchStatuses();
+
     const kickOff = this.nextMatch?.kickOfDate
       ? new Date(this.nextMatch.kickOfDate).getTime()
       : new Date('2026-06-11T00:00:00').getTime();
@@ -549,6 +577,27 @@ export class AboutYouComponent implements OnInit, OnDestroy {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
+  private updateMatchStatuses(): void {
+    if (!this.matches?.length) {
+      return;
+    }
+
+    const now = new Date().getTime();
+    const matchDuration = this.matchDurationInMinutes * 60 * 1000;
+
+    this.matches.forEach(match => {
+      const kickOff = match?.kickOfDate ? new Date(match.kickOfDate).getTime() : NaN;
+      if (Number.isNaN(kickOff)) {
+        match.isHappening = false;
+        return;
+      }
+
+      const finishTime = kickOff + matchDuration;
+      match.isHappening = now >= kickOff && now <= finishTime;
+      match.isPassed = match.isPassed || now > finishTime;
+    });
+  }
+
   private startChatConnection(): void {
     this.hubConnection.start()
       .catch(err => this.toasrt.error(this.languageService.translate('toast.chatConnectionError', { error: err })));
@@ -558,10 +607,19 @@ export class AboutYouComponent implements OnInit, OnDestroy {
         return;
       }
 
-      this.chatData.push(data);
-      if (data?.userName !== this.currentUserName) {
+      if (this.isIncomingUserChat(data)) {
+        if (this.isChatMuted) {
+          this.hasMutedUnreadChat = true;
+          this.shakeChatNotification();
+        } else {
+          this.isChatExpanded = true;
+          this.markUnreadMessage(data);
+        }
+
         this.playAudio();
       }
+
+      this.chatData.push(data);
       this.scrollChatToBottom();
     });
 
@@ -581,6 +639,7 @@ export class AboutYouComponent implements OnInit, OnDestroy {
 
     this.dataService.getChats({ matchId: this.nextMatch.id }).subscribe(response => {
       this.chatData = response.result || [];
+      this.clearChatNotification();
       this.scrollChatToBottom();
     });
   }
@@ -596,6 +655,66 @@ export class AboutYouComponent implements OnInit, OnDestroy {
     const messageMatchId = `${data?.matchId || data?.MatchId || ''}`;
     const currentMatchId = `${this.nextMatch?.id || ''}`;
     return messageMatchId === currentMatchId;
+  }
+
+  private isIncomingUserChat(data: any): boolean {
+    return !!data?.userName && data.userName !== this.currentUserName && !data?.isSystem;
+  }
+
+  private markUnreadMessage(message: any): void {
+    message.isUnread = true;
+
+    if (this.unreadHighlightTimeout) {
+      clearTimeout(this.unreadHighlightTimeout);
+    }
+
+    this.unreadHighlightTimeout = setTimeout(() => {
+      this.clearUnreadMessages();
+      this.unreadHighlightTimeout = null;
+    }, 10000);
+  }
+
+  private clearUnreadMessages(): void {
+    this.chatData.forEach(message => {
+      if (message) {
+        message.isUnread = false;
+      }
+    });
+  }
+
+  private shakeChatNotification(): void {
+    this.isChatNotificationShaking = false;
+
+    if (this.chatShakeTimeout) {
+      clearTimeout(this.chatShakeTimeout);
+    }
+
+    this.chatShakeStartTimeout = setTimeout(() => {
+      this.chatShakeStartTimeout = null;
+      this.isChatNotificationShaking = true;
+
+      this.chatShakeTimeout = setTimeout(() => {
+        this.isChatNotificationShaking = false;
+        this.chatShakeTimeout = null;
+      }, 10000);
+    });
+  }
+
+  private clearChatNotificationTimers(): void {
+    if (this.unreadHighlightTimeout) {
+      clearTimeout(this.unreadHighlightTimeout);
+      this.unreadHighlightTimeout = null;
+    }
+
+    if (this.chatShakeStartTimeout) {
+      clearTimeout(this.chatShakeStartTimeout);
+      this.chatShakeStartTimeout = null;
+    }
+
+    if (this.chatShakeTimeout) {
+      clearTimeout(this.chatShakeTimeout);
+      this.chatShakeTimeout = null;
+    }
   }
 
   private addPresenceMessages(previousUsers: any[], nextUsers: any[]): void {

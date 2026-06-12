@@ -95,7 +95,10 @@
           </button>
         </section>
 
-        <section class="wc-panel wc-chat-panel">
+        <section class="wc-panel wc-chat-panel" [class.has-muted-unread]="hasMutedUnreadChat"
+          [class.is-shaking-notification]="isChatNotificationShaking"
+          (click)="clearChatNotification()"
+          (focusin)="clearChatNotification()">
           <div class="wc-section-header">
             <div>
               <p class="wc-eyebrow">{{'about.live' | translate}}</p>
@@ -127,7 +130,8 @@
             <div class="wc-chat-empty" *ngIf="chatData.length === 0">{{'about.noMessages' | translate}}</div>
             <article class="wc-chat-message" *ngFor="let item of chatData"
               [class.is-current-user]="item?.userName === currentUserName"
-              [class.is-system-message]="item?.isSystem">
+              [class.is-system-message]="item?.isSystem"
+              [class.is-unread-message]="item?.isUnread">
               <img *ngIf="!item?.isSystem" [src]="item?.avatar || 'https://www.w3schools.com/w3css/img_avatar2.png'" alt="">
               <div *ngIf="!item?.isSystem">
                 <strong>{{item?.userName}}</strong>
@@ -360,7 +364,10 @@
   </div>
 </div>
 
-<div class="wc-chat-expanded" *ngIf="isChatExpanded">
+<div class="wc-chat-expanded" *ngIf="isChatExpanded" [class.has-muted-unread]="hasMutedUnreadChat"
+  [class.is-shaking-notification]="isChatNotificationShaking"
+  (click)="clearChatNotification()"
+  (focusin)="clearChatNotification()">
   <header>
     <div>
       <p class="wc-eyebrow">{{'about.live' | translate}}</p>
@@ -392,7 +399,8 @@
     <div class="wc-chat-empty" *ngIf="chatData.length === 0">{{'about.noMessages' | translate}}</div>
     <article class="wc-chat-message" *ngFor="let item of chatData"
       [class.is-current-user]="item?.userName === currentUserName"
-      [class.is-system-message]="item?.isSystem">
+      [class.is-system-message]="item?.isSystem"
+      [class.is-unread-message]="item?.isUnread">
       <img *ngIf="!item?.isSystem" [src]="item?.avatar || 'https://www.w3schools.com/w3css/img_avatar2.png'" alt="">
       <div *ngIf="!item?.isSystem">
         <strong>{{item?.userName}}</strong>
